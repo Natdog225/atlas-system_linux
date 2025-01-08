@@ -3,30 +3,33 @@
 #include <stdlib.h>
 
 /**
- * struct car_s - Structure to represent a car
- * @id: identifier for the car
- * @laps: Number of laps completed by the car
- * @next: Pointer to the next car in the list
- */
+* struct car_s - Structure to represent a car
+* @id: identifier for the car
+* @laps: Number of laps completed by the car
+* @next: Pointer to the next car in the list
+*/
 typedef struct car_s
 {
 	int id;
+
 	int laps;
+
 	struct car_s *next;
 } car_t;
 
 static car_t *cars = NULL;
 
 /**
- * add_car - Adds a new car to the linked list
- * @id: Identifier of the car
- *
- * Return: Pointer to the newly added car
- */
+* add_car - Adds a new car to the linked list
+* @id: Identifier of the car
+*
+* Return: Pointer to the newly added car
+*/
 car_t *add_car(int id)
 {
 	car_t *new_car = malloc(sizeof(car_t));
 	car_t *current = cars;
+	car_t *prev = NULL;
 
 	if (new_car == NULL)
 		return (NULL);
@@ -35,15 +38,20 @@ car_t *add_car(int id)
 	new_car->laps = 0;
 	new_car->next = NULL;
 
-	if (cars == NULL)
+	if (cars == NULL || cars->id > id)
 	{
+		new_car->next = cars;
 		cars = new_car;
 	}
 	else
 	{
-		while (current->next != NULL)
+		while (current != NULL && current->id < id)
+		{
+			prev = current;
 			current = current->next;
-		current->next = new_car;
+		}
+		prev->next = new_car;
+		new_car->next = current;
 	}
 
 	printf("Car %d joined the race\n", id);
@@ -51,9 +59,9 @@ car_t *add_car(int id)
 }
 
 /**
- * update_laps - Updates the number of laps for a car
- * @id: Identifier of the car
- */
+* update_laps - Updates the number of laps for a car
+* @id: Identifier of the car
+*/
 void update_laps(int id)
 {
 	car_t *current = cars;
@@ -70,8 +78,8 @@ void update_laps(int id)
 }
 
 /**
- * print_race_state - Prints the leaderboard
- */
+* print_race_state - Prints the leaderboard
+*/
 void print_race_state(void)
 {
 	car_t *current = cars;
@@ -85,8 +93,8 @@ void print_race_state(void)
 }
 
 /**
- * free_cars - Frees the memory allocated for the cars
- */
+* free_cars - Frees the memory allocated for the cars
+*/
 void free_cars(void)
 {
 	car_t *current = cars;
@@ -102,10 +110,10 @@ void free_cars(void)
 }
 
 /**
- * race_state - Keeps track of cars in a race
- * @id: Array of car identifiers
- * @size: Size of the array
- */
+* race_state - Keeps track of cars in a race
+* @id: Array of car identifiers
+* @size: Size of the array
+*/
 void race_state(int *id, size_t size)
 {
 	size_t i;
