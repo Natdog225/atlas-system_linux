@@ -2,23 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/**
-* struct car_s - Structure to represent a car
-* @id: identifier for the car
-* @laps: Number of laps completed by the car
-* @next: Pointer to the next car in the list
-*/
-typedef struct car_s
-{
-	int id;
 
-	int laps;
-
-	struct car_s *next;
-} car_t;
-
-static car_t *cars = NULL;
-
+static car_t *cars;
 /**
 * add_car - Adds a new car to the linked list
 * @id: Identifier of the car
