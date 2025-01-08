@@ -7,7 +7,7 @@
 * _getline - Reads an entire line from a file descriptor.
 * @fd: The file descriptor to read from.
 *
-* Return: A pointer to the line, or NULL on failure or EOF.
+* Return: A pointer to the line read, or NULL on failure or EOF.
 */
 char *_getline(const int fd)
 {
@@ -50,11 +50,10 @@ char *_getline(const int fd)
 		}
 		for (i = offset[fd]; i < read_bytes[fd]; i++)
 		{
-			line_len++;
 			if (buffer[fd][i] == '\n')
 			{
-				line = realloc(line, line_len + 1);
-				printf("DEBUG: reallocating line to size: %d\n", line_len + 1);
+				line = realloc(line, line_len + 2);
+				printf("DEBUG: reallocating line to size: %d\n", line_len + 2);
 				if (!line)
 				{
 					perror("DEBUG: realloc failed");
@@ -65,13 +64,15 @@ char *_getline(const int fd)
 				{
 					line[j] = buffer[fd][offset[fd] + j];
 				}
-				line[line_len] = '\0';
+				line[line_len] = '\n';
+				line[line_len + 1] = '\0';
 				offset[fd] = i + 1;
 				printf("DEBUG: line_len=%d\n", line_len);
 				printf("DEBUG: line contents: |%s|\n", line);
 				line_len = 0;
 				return (line);
 			}
+			line_len++;
 		}
 		line = realloc(line, line_len + 1);
 		printf("DEBUG: reallocating line to size: %d\n", line_len + 1);
@@ -80,11 +81,11 @@ char *_getline(const int fd)
 			perror("DEBUG: realloc failed");
 			return (NULL);
 		}
-		for (int j = 0; j < line_len; j++) {
+		for (int j = 0; j < read_bytes[fd] - offset[fd]; j++) {
 
-			line[j] = buffer[fd][offset[fd] + j];
+			line[line_len - (read_bytes[fd] - offset[fd] - j)] = buffer[fd][offset[fd] + j];
 		}
-		offset[fd] += line_len;
+		offset[fd] = i;
 	}
 	line = realloc(line, line_len + 1);
 	printf("DEBUG: reallocating line to size: %d\n", line_len + 1);
