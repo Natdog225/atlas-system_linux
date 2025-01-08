@@ -50,14 +50,15 @@ char *_getline(const int fd)
 			line_len++;
 			if (buffer[fd][i] == '\n')
 			{
-				line = realloc(line, line_len + 1);
+				line = realloc(line, line_len + 2);
 				if (!line)
 					return (NULL);
+				line[line_len] = '\n';
 				line[line_len - 1] = '\0';
-				i++;
-				offset[fd] = i;
+				offset[fd] = i + 1;
 				return (line);
 			}
+			line_len++;
 		}
 		line = realloc(line, line_len + 1);
 		if (!line)
