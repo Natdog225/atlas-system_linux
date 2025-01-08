@@ -1,13 +1,14 @@
 #include "_getline.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
 /**
- * _getline - Reads an entire line from a file descriptor.
- * @fd: The file descriptor to read from.
- *
- * Return: A pointer to the line read, or NULL on failure or EOF.
- */
+* _getline - Reads an entire line from a file descriptor.
+* @fd: The file descriptor
+*
+* Return: A pointer to the line read, or NULL on failure
+*/
 char *_getline(const int fd)
 {
 	static char buffer[MAX_FDS][READ_SIZE + 1] = {{0}};
@@ -35,6 +36,8 @@ char *_getline(const int fd)
 		{
 			offset[fd] = 0;
 			read_bytes[fd] = read(fd, buffer[fd], READ_SIZE);
+			printf("DEBUG: fd=%d, read_bytes=%d\n", fd, read_bytes[fd]);
+			printf("DEBUG: buffer contents: |%s|\n", buffer[fd]);
 			if (read_bytes[fd] == 0)
 			{
 				if (line_len == 0)
@@ -47,15 +50,17 @@ char *_getline(const int fd)
 		}
 		for (i = offset[fd]; i < read_bytes[fd]; i++)
 		{
-			line_len++;
 			if (buffer[fd][i] == '\n')
 			{
 				line = realloc(line, line_len + 2);
 				if (!line)
 					return (NULL);
 				line[line_len] = '\n';
-				line[line_len - 1] = '\0';
-				offset[fd] = i + 1;
+				line[line_len + 1] = '\0';
+				i++;
+				offset[fd] = i;
+				printf("DEBUG: line_len=%d\n", line_len);
+				printf("DEBUG: line contents: |%s|\n", line);
 				return (line);
 			}
 			line_len++;
@@ -73,5 +78,7 @@ char *_getline(const int fd)
 	if (!line)
 		return (NULL);
 	line[line_len] = '\0';
+	printf("DEBUG: line_len=%d\n", line_len);
+	printf("DEBUG: line contents: |%s|\n", line);
 	return (line);
 }
