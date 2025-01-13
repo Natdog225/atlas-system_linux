@@ -37,26 +37,26 @@ char *_getline(const int fd)
 
 		for (int i = offset[fd]; i < read_bytes[fd]; i++)
 		{
+			line = realloc(line, line_len + 2);
+			if (!line)
+			{
+				perror("Memory allocation failed");
+				return NULL;
+			}
+
+			line[line_len++] = buffer[fd][i];
+
 			if (buffer[fd][i] == '\n')
 			{
-				line = realloc(line, line_len + 2);
-				if (!line)
-				{
-					perror("Memory allocation failed");
-					return NULL;
-				}
-				strncpy(line, buffer[fd] + offset[fd], line_len);
-				line[line_len] = '\n';
-				line[line_len + 1] = '\0';
+				line[line_len] = '\0';
 				offset[fd] = i + 1;
 				return line;
 			}
-			line_len++;
 		}
 		offset[fd] = read_bytes[fd];
 	}
 
-	/*EOF case with no new lines*/
+	/*EOF case if no new lines*/
 	if (line_len > 0)
 	{
 		line = realloc(line, line_len + 1);
@@ -65,7 +65,6 @@ char *_getline(const int fd)
 			perror("Memory allocation failed");
 			return NULL;
 		}
-		strncpy(line, buffer[fd] + offset[fd], line_len);
 		line[line_len] = '\0';
 		return line;
 	}
