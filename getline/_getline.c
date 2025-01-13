@@ -3,17 +3,17 @@
 #include <unistd.h>
 #include <stdio.h>
 
-/**
- * _getline - Reads an entire line from a file descriptor.
- * @fd: The file descriptor to read from.
- *
- * Return: A pointer to the line read, or NULL on failure or EOF.
- */
+#define MAX_LINE_LENGTH 25
+#define READ_SIZE 1024
+#define MAX_FDS 256
+
+static char buffer[MAX_FDS][READ_SIZE + 1] = {{0}};
+static int read_bytes[MAX_FDS] = {0};
+static int offset[MAX_FDS] = {0};
+static int total_lines = 0;
+
 char *_getline(const int fd)
 {
-	static char buffer[MAX_FDS][READ_SIZE + 1] = {{0}};
-	static int read_bytes[MAX_FDS] = {0};
-	static int offset[MAX_FDS] = {0};
 	char *line = NULL;
 	int line_len = 0;
 	int i;
@@ -30,6 +30,7 @@ char *_getline(const int fd)
 	}
 	if (fd < 0 || fd >= MAX_FDS)
 		return (NULL);
+
 	while (1)
 	{
 		if (offset[fd] >= read_bytes[fd])
@@ -48,31 +49,40 @@ char *_getline(const int fd)
 		}
 		for (i = offset[fd]; i < read_bytes[fd]; i++)
 		{
-			line_len++;
+			if (line_len >= MAX_LINE_LENGTH)
+				break;
+
+			line = realloc(line, line_len + 2);
+			if (!line)
+				return (NULL);
+
+			line[line_len++] = buffer[fd][i];
+
 			if (buffer[fd][i] == '\n')
 			{
-				line = realloc(line, line_len + 1);
-				if (!line)
-					return (NULL);
-				for (int j = 0; j < line_len; j++)
-					line[j] = buffer[fd][offset[fd] + j];
 				line[line_len] = '\0';
 				offset[fd] = i + 1;
-				line_len = 0;
+				total_lines++;
+				printf("Total: %d lines\n", total_lines);
 				return (line);
 			}
 		}
-		line = realloc(line, line_len + 1);
-		if (!line)
-			return (NULL);
-		for (int j = 0; j < read_bytes[fd] - offset[fd]; j++)
-			line[line_len - (read_bytes[fd] - offset[fd]) + j] =
-				buffer[fd][offset[fd] + j];
 		offset[fd] = i;
 	}
+
+	if (line_len > 0 && line[line_len - 1] == '\n')
+	{
+		line[line_len - 1] = '\0';
+		line_len--;
+	}
+
 	line = realloc(line, line_len + 1);
 	if (!line)
 		return (NULL);
 	line[line_len] = '\0';
+
+	total_lines++;
+	printf("Total: %d lines\n", total_lines);
+
 	return (line);
 }
