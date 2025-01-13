@@ -66,7 +66,7 @@ char *_getline(const int fd)
 		if (!line)
 			return (NULL);
 		for (int j = 0; j < read_bytes[fd] - offset[fd]; j++)
-			line[line_len - (read_bytes[fd] - offset[fd] - j)] =
+			line[line_len - (read_bytes[fd] - offset[fd]) + j] =
 				buffer[fd][offset[fd] + j];
 		offset[fd] = i;
 	}
