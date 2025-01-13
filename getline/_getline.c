@@ -45,7 +45,7 @@ char *_getline(const int fd)
 
 		for (int i = offset[fd]; i < read_bytes[fd]; i++)
 		{
-			line = realloc(line, line_len + 2);
+			line = realloc(line, line_len + 1);
 			if (!line)
 			{
 				perror("Memory allocation failed");
