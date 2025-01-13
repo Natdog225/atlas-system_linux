@@ -4,8 +4,7 @@
 #include <stdio.h>
 
 #define MAX_LINE_LENGTH 25
-#define READ_SIZE 1024
-#define MAX_FDS 256
+
 
 static char buffer[MAX_FDS][READ_SIZE + 1] = {{0}};
 static int read_bytes[MAX_FDS] = {0};
