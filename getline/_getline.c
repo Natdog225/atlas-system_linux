@@ -50,6 +50,7 @@ char *_getline(const int fd)
 			{
 				line[line_len] = '\0';
 				offset[fd] = i + 1;
+				line_len = 0;
 				return line;
 			}
 		}
