@@ -20,7 +20,10 @@ char *_getline(const int fd)
 		fprintf(stderr, "Invalid file descriptor\n");
 		return NULL;
 	}
-
+	if (line_count >= MAX_LINES)
+	{
+		return NULL;
+	}
 	while (1)
 	{
 		if (offset[fd] >= read_bytes[fd])
