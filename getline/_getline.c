@@ -56,6 +56,7 @@ char *_getline(const int fd)
 
 			if (buffer[fd][i] == '\n')
 			{
+				line[line_len - 1] = '\n';
 				line[line_len] = '\0';
 				offset[fd] = i + 1;
 				line_count++;
