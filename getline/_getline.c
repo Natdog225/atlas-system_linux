@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 
 char *_getline(const int fd)
 {
@@ -39,14 +38,15 @@ char *_getline(const int fd)
 		{
 			if (buffer[fd][i] == '\n')
 			{
-				line = realloc(line, line_len + 1);
+				line = realloc(line, line_len + 2);
 				if (!line)
 				{
 					perror("Memory allocation failed");
 					return NULL;
 				}
 				strncpy(line, buffer[fd] + offset[fd], line_len);
-				line[line_len] = '\0';
+				line[line_len] = '\n';
+				line[line_len + 1] = '\0';
 				offset[fd] = i + 1;
 				return line;
 			}
@@ -55,7 +55,7 @@ char *_getline(const int fd)
 		offset[fd] = read_bytes[fd];
 	}
 
-	/* EOF without newline check */
+	/*EOF case with no new lines*/
 	if (line_len > 0)
 	{
 		line = realloc(line, line_len + 1);
