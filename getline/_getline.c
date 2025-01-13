@@ -4,11 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#define MAX_LINES 25
+
 char *_getline(const int fd)
 {
 	static char buffer[MAX_FDS][READ_SIZE + 1] = {{0}};
 	static int read_bytes[MAX_FDS] = {0};
 	static int offset[MAX_FDS] = {0};
+	static int line_count = 0;
 	char *line = NULL;
 	int line_len = 0;
 
@@ -67,6 +70,7 @@ char *_getline(const int fd)
 			return NULL;
 		}
 		line[line_len] = '\0';
+		line_count++;
 		return line;
 	}
 
