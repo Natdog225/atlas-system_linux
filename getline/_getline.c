@@ -4,8 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_LINES 25
-
+/**
+ * _getline - Reads an entire line from a file descriptor.
+ * @fd: The file descriptor to read from.
+ *
+ * Return: A null-terminated string that does not include the newline
+ *         character, or NULL if there are no more lines or an error occurs.
+ */
 char *_getline(const int fd)
 {
 	static char buffer[MAX_FDS][READ_SIZE + 1];

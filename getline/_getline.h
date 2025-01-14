@@ -3,6 +3,7 @@
 
 #define READ_SIZE 256
 #define MAX_FDS 1024
+#define MAX_LINES 25
 
 char *_getline(const int fd);
 
