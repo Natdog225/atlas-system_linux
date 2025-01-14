@@ -15,6 +15,18 @@ char *_getline(const int fd)
 	char *line = NULL;
 	int line_len = 0;
 
+	if (fd == -1)
+	{
+		for (int i = 0; i < MAX_FDS; i++)
+		{
+			read_bytes[i] = 0;
+			offset[i] = 0;
+			buffer[i][0] = '\0';
+		}
+		line_count = 0;
+		return (NULL);
+	}
+
 	if (fd < 0 || fd >= MAX_FDS)
 	{
 		fprintf(stderr, "Invalid file descriptor\n");
@@ -45,28 +57,33 @@ char *_getline(const int fd)
 
 		for (int i = offset[fd]; i < read_bytes[fd]; i++)
 		{
-			line = realloc(line, line_len + 1);
-			if (!line)
-			{
-				perror("Memory allocation failed");
-				return NULL;
-			}
-
-			line[line_len++] = buffer[fd][i];
-
+			line_len++;
 			if (buffer[fd][i] == '\n')
 			{
-				line[line_len - 1] = '\n';
+				line = realloc(line, line_len + 1);
+				if (!line)
+				{
+					perror("Memory allocation failed");
+					return NULL;
+				}
+				memcpy(line + line_len - (i - offset[fd] + 1), buffer[fd] + offset[fd], i - offset[fd] + 1);
 				line[line_len] = '\0';
 				offset[fd] = i + 1;
 				line_count++;
 				return line;
 			}
 		}
+
+		line = realloc(line, line_len + 1);
+		if (!line)
+		{
+			perror("Memory allocation failed");
+			return NULL;
+		}
+		memcpy(line + line_len - (read_bytes[fd] - offset[fd]), buffer[fd] + offset[fd], read_bytes[fd] - offset[fd]);
 		offset[fd] = read_bytes[fd];
 	}
 
-	/*EOF case if no new lines*/
 	if (line_len > 0)
 	{
 		line = realloc(line, line_len + 1);
