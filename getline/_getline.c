@@ -58,11 +58,11 @@ char *_getline(const int fd)
 
 		if (newline_pos != -1)
 		{
-			line = realloc(line, line_len + (newline_pos - offset[fd]) + 2);
+			line = realloc(line, line_len + (newline_pos - offset[fd]) + 1);
 			if (!line)
 				return NULL;
-			memcpy(line + line_len, buffer[fd] + offset[fd], newline_pos - offset[fd] + 1);
-			line_len += (newline_pos - offset[fd] + 1);
+			memcpy(line + line_len, buffer[fd] + offset[fd], newline_pos - offset[fd]);
+			line_len += (newline_pos - offset[fd]);
 			line[line_len] = '\0';
 			offset[fd] = newline_pos + 1;
 			line_count++;
