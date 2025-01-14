@@ -16,73 +16,66 @@ char *_getline(const int fd)
 	static char buffer[MAX_FDS][READ_SIZE + 1];
 	static int bytes_read[MAX_FDS];
 	static int offset[MAX_FDS];
-	static int line_count;
 	char *line = NULL;
 	int line_len = 0;
-	int i;
+	int i, j;
 
-	if (fd == -1)
-	{
-		for (i = 0; i < MAX_FDS; i++)
-		{
-			bytes_read[i] = 0;
-			offset[i] = 0;
-		}
-		line_count = 0;
-		return (NULL);
-	}
-
-	if (fd < 0 || fd >= MAX_FDS || line_count >= MAX_LINES)
+	/* Check for invalid file descriptor */
+	if (fd < 0 || fd >= MAX_FDS)
 		return (NULL);
 
 	while (1)
 	{
-		if (offset[fd] == bytes_read[fd])
+		/* Read more data if the buffer is empty */
+		if (offset[fd] >= bytes_read[fd])
 		{
 			bytes_read[fd] = read(fd, buffer[fd], READ_SIZE);
 			offset[fd] = 0;
 
-			if (bytes_read[fd] == 0)
+			/* Handle end of file or errors */
+			if (bytes_read[fd] <= 0)
 			{
-				if (line_len == 0)
-					return (NULL);
-				else
-					break;
-			}
-
-			if (bytes_read[fd] == -1)
+				if (line_len > 0)
+				{
+					line[line_len] = '\0';
+					return (line);
+				}
 				return (NULL);
+			}
 		}
 
+		/* Search for newline character */
 		for (i = offset[fd]; i < bytes_read[fd]; i++)
 		{
 			if (buffer[fd][i] == '\n')
 			{
-				line = realloc(line, line_len + (i - offset[fd]) + 1);
+				/* Allocate memory for the line */
+				line = realloc(line, line_len + i - offset[fd] + 1);
 				if (!line)
 					return (NULL);
 
-				memcpy(line + line_len, buffer[fd] + offset[fd], i - offset[fd]);
-				line_len += (i - offset[fd]);
+				/* Copy the line from the buffer */
+				for (j = 0; j < i - offset[fd]; j++)
+					line[line_len + j] = buffer[fd][offset[fd] + j];
+
+				line_len += i - offset[fd];
 				line[line_len] = '\0';
 				offset[fd] = i + 1;
-				line_count++;
 				return (line);
 			}
 		}
 
-		line = realloc(line, line_len + (bytes_read[fd] - offset[fd]) + 1);
+		/* If no newline is found, append the entire buffer to the line */
+		line = realloc(line, line_len + bytes_read[fd] - offset[fd] + 1);
 		if (!line)
 			return (NULL);
 
-		memcpy(line + line_len, buffer[fd] + offset[fd], bytes_read[fd] - offset[fd]);
-		line_len += (bytes_read[fd] - offset[fd]);
+		for (j = 0; j < bytes_read[fd] - offset[fd]; j++)
+			line[line_len + j] = buffer[fd][offset[fd] + j];
+
+		line_len += bytes_read[fd] - offset[fd];
 		offset[fd] = bytes_read[fd];
 	}
 
-	if (line_len > 0)
-		line[line_len] = '\0';
-
-	line_count++;
-	return (line);
+	return (NULL);
 }
