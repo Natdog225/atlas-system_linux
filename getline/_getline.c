@@ -1,3 +1,11 @@
+#include "_getline.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_LINES 25
+
 char *_getline(const int fd)
 {
 	static char buffer[MAX_FDS][READ_SIZE + 1];
