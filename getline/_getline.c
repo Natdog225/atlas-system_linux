@@ -38,12 +38,12 @@ char *_getline(const int fd)
 		{
 			bytes_read[fd] = read(fd, buffer[fd], READ_SIZE);
 			offset[fd] = 0;
-			if (bytes_read[fd] <= 0)
-			{
-				if (line_len == 0)
-					return NULL;
+			if (bytes_read[fd] == -1)
+				return (NULL);
+			if (bytes_read[fd] == 0 && line_len == 0)
+				return NULL;
+			if (bytes_read[fd] == 0 && line_len > 0)
 				break;
-			}
 		}
 
 		newline_pos = -1;
