@@ -1,11 +1,3 @@
-#include "_getline.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-
-#define MAX_LINES 25
-
 char *_getline(const int fd)
 {
 	static char buffer[MAX_FDS][READ_SIZE + 1];
@@ -28,9 +20,7 @@ char *_getline(const int fd)
 	}
 
 	if (fd < 0 || fd >= MAX_FDS || line_count >= MAX_LINES)
-	{
 		return NULL;
-	}
 
 	while (1)
 	{
@@ -48,14 +38,14 @@ char *_getline(const int fd)
 			}
 
 			if (bytes_read[fd] == -1)
-				return (NULL);
+				return NULL;
 		}
 
 		for (i = offset[fd]; i < bytes_read[fd]; i++)
 		{
 			if (buffer[fd][i] == '\n')
 			{
-				line = (char *)realloc(line, line_len + (i - offset[fd]) + 2);
+				line = realloc(line, line_len + (i - offset[fd]) + 2);
 				if (!line)
 					return NULL;
 
@@ -69,7 +59,7 @@ char *_getline(const int fd)
 			}
 		}
 
-		line = (char *)realloc(line, line_len + (bytes_read[fd] - offset[fd]) + 1);
+		line = realloc(line, line_len + (bytes_read[fd] - offset[fd]) + 1);
 		if (!line)
 			return NULL;
 
@@ -78,7 +68,9 @@ char *_getline(const int fd)
 		offset[fd] = bytes_read[fd];
 	}
 
-	line[line_len] = '\0';
+	if (line_len > 0)
+		line[line_len] = '\0';
+
 	line_count++;
 	return line;
 }
