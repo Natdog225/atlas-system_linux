@@ -53,14 +53,13 @@ char *_getline(const int fd)
 		{
 			if (buffer[fd][i] == '\n')
 			{
-				line = realloc(line, line_len + (i - offset[fd]) + 2);
+				line = realloc(line, line_len + (i - offset[fd]) + 1);
 				if (!line)
 					return NULL;
 
 				memcpy(line + line_len, buffer[fd] + offset[fd], i - offset[fd]);
 				line_len += (i - offset[fd]);
-				line[line_len] = '\n';
-				line[line_len + 1] = '\0';
+				line[line_len] = '\0';
 				offset[fd] = i + 1;
 				line_count++;
 				return line;
