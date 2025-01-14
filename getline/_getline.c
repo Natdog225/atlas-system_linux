@@ -14,9 +14,9 @@
 char *_getline(const int fd)
 {
 	static char buffer[MAX_FDS][READ_SIZE + 1];
-	static int bytes_read[MAX_FDS] = {0};
-	static int offset[MAX_FDS] = {0};
-	static int line_count = 0;
+	static int bytes_read[MAX_FDS];
+	static int offset[MAX_FDS];
+	static int line_count;
 	char *line = NULL;
 	int line_len = 0;
 	int i;
@@ -29,11 +29,11 @@ char *_getline(const int fd)
 			offset[i] = 0;
 		}
 		line_count = 0;
-		return NULL;
+		return (NULL);
 	}
 
 	if (fd < 0 || fd >= MAX_FDS || line_count >= MAX_LINES)
-		return NULL;
+		return (NULL);
 
 	while (1)
 	{
@@ -45,13 +45,13 @@ char *_getline(const int fd)
 			if (bytes_read[fd] == 0)
 			{
 				if (line_len == 0)
-					return NULL;
+					return (NULL);
 				else
 					break;
 			}
 
 			if (bytes_read[fd] == -1)
-				return NULL;
+				return (NULL);
 		}
 
 		for (i = offset[fd]; i < bytes_read[fd]; i++)
@@ -60,20 +60,20 @@ char *_getline(const int fd)
 			{
 				line = realloc(line, line_len + (i - offset[fd]) + 1);
 				if (!line)
-					return NULL;
+					return (NULL);
 
 				memcpy(line + line_len, buffer[fd] + offset[fd], i - offset[fd]);
 				line_len += (i - offset[fd]);
 				line[line_len] = '\0';
 				offset[fd] = i + 1;
 				line_count++;
-				return line;
+				return (line);
 			}
 		}
 
 		line = realloc(line, line_len + (bytes_read[fd] - offset[fd]) + 1);
 		if (!line)
-			return NULL;
+			return (NULL);
 
 		memcpy(line + line_len, buffer[fd] + offset[fd], bytes_read[fd] - offset[fd]);
 		line_len += (bytes_read[fd] - offset[fd]);
@@ -84,5 +84,5 @@ char *_getline(const int fd)
 		line[line_len] = '\0';
 
 	line_count++;
-	return line;
+	return (line);
 }
