@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-
+#include <string.h>
 /**
  * main - Entry point
  * @argc: Argument count
@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
 
 	if (lstat(path, &path_stat) == -1)
 	{
-		perror("lstat"); /* Print error message if lstat fails */
+		fprintf(stderr, "%s: cannot access %s: %s\n",
+				argv[0], path, strerror(errno));
 		exit(1);
 	}
 
