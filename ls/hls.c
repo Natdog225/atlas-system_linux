@@ -84,30 +84,3 @@ int main(int argc, char *argv[])
 
 	return (0);
 }
-if (S_ISDIR(path_stat.st_mode))
-{
-	dir = opendir(path);
-	if (dir == NULL)
-	{
-		perror("opendir");
-		exit(1);
-	}
-
-	while ((entry = readdir(dir)) != NULL)
-	{
-		if (show_hidden == 0 && entry->d_name[0] == '.')
-		{
-			continue;
-		}
-		printf("%s  ", entry->d_name);
-	}
-	printf("\n");
-	closedir(dir);
-}
-else
-{
-	printf("%s\n", path);
-}
-
-return (0);
-}
