@@ -28,7 +28,7 @@ void print_directory_contents(char *dir_name, int show_hidden)
 		{
 			continue;
 		}
-		printf("%s   ", entry->d_name);
+		printf("%s  ", entry->d_name);
 	}
 	printf("\n");
 	closedir(dir);
