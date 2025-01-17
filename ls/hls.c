@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <cerrno>
+#include <errno.h>
 /**
  * main - Entry point
  * @argc: Argument count
