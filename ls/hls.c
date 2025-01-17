@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	{
 		if (argv[i][0] != '-')
 		{
-\			path = argv[i];
+			path = argv[i];
 		}
 		else if (argv[i][0] == '-' && argv[i][1] == 'a' && argv[i][2] == '\0')
 		{
@@ -51,3 +51,4 @@ int main(int argc, char *argv[])
 		closedir(dir);
 		return (0);
 	}
+}
