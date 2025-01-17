@@ -14,6 +14,7 @@ void print_directory_contents(char *dir_name, int show_hidden)
 {
 	DIR *dir;
 	struct dirent *entry;
+	int count = 0;
 
 	dir = opendir(dir_name);
 	if (dir == NULL)
@@ -28,9 +29,18 @@ void print_directory_contents(char *dir_name, int show_hidden)
 		{
 			continue;
 		}
+		if (count > 0)
+		{
+			printf("  ");
+		}
 		printf("%s  ", entry->d_name);
+		count++;
 	}
-	printf("\n");
+	if (count > 0)
+	{
+		printf("\n");
+
+	}
 	closedir(dir);
 }
 
