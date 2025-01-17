@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
 	for (i = 1; i < argc; i++)
 	{
-		if (strcmp(argv[i], "-a") == 0)
+		if (argv[i][0] == '-' && argv[i][1] == 'a' && argv[i][2] == '\0')
 		{
 			show_hidden = 1;
 		}
