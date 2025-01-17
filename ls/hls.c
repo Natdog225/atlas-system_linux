@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+
 /**
  * main - Entry point
  * @argc: Argument count
@@ -16,9 +17,9 @@ int main(int argc, char *argv[])
 	struct dirent *entry;
 	char *path = ".";
 	struct stat path_stat;
+	int i;
 
-	/*Parse command-line arguments*/
-	for (int i = 1; i < argc; i++)
+	for (i = 1; i < argc; i++)
 	{
 		if (argv[i][0] != '-')
 		{
@@ -29,7 +30,14 @@ int main(int argc, char *argv[])
 			show_hidden = 1;
 		}
 	}
-	if (lstat(path, &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
+
+	if (lstat(path, &path_stat) == -1)
+	{
+		perror("lstat"); /* Print error message if lstat fails */
+		exit(1);
+	}
+
+	if (S_ISDIR(path_stat.st_mode))
 	{
 		dir = opendir(path);
 		if (dir == NULL)
@@ -47,8 +55,12 @@ int main(int argc, char *argv[])
 			printf("%s  ", entry->d_name);
 		}
 		printf("\n");
-
 		closedir(dir);
-		return (0);
 	}
+	else
+	{
+		printf("%s\n", path);
+	}
+
+	return (0);
 }
