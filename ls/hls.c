@@ -14,7 +14,7 @@ void print_directory_contents(char *dir_name, int show_hidden)
 {
 	DIR *dir;
 	struct dirent *entry;
-	int count = 0;
+	char buffer[1024];
 
 	dir = opendir(dir_name);
 	if (dir == NULL)
@@ -29,16 +29,17 @@ void print_directory_contents(char *dir_name, int show_hidden)
 		{
 			continue;
 		}
-		if (count > 0)
+
+		/* Convert filename to lowercase */
+		for (int i = 0; i < strlen(entry->d_name); i++)
 		{
-			printf("  ");
+			buffer[i] = tolower(entry->d_name[i]);
 		}
-		printf("%s", entry->d_name);
-		count++;
-	}
-	if (count > 0)
-	{
-		printf("\n");
+		buffer[strlen(entry->d_name)] = '\0';
+
+		/* Print the formatted string */
+		snprintf(buffer, sizeof(buffer), "%-*s\n", 20, entry->d_name);
+		fwrite(buffer, 1, strlen(buffer), stdout);
 	}
 	closedir(dir);
 }
@@ -67,7 +68,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			if (argc > 2) /* Only print colon if more than one path could be fix? */
+			if (argc > 2) /* Only print colon if more than one path, could be fix? */
 			{
 				printf("%s:\n", argv[i]);
 			}
