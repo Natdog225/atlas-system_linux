@@ -19,7 +19,7 @@ void print_directory_contents(char *dir_name, int show_hidden, int one_per_line)
 	dir = opendir(dir_name);
 	if (dir == NULL)
 	{
-		fprintf(stderr, "%s: cannot access %s: %s\n",
+		fprintf(stderr, "%s: cannot access '%s': %s\n",
 			"./hls_01", dir_name, strerror(errno));
 		exit(1);
 	}
@@ -31,13 +31,15 @@ void print_directory_contents(char *dir_name, int show_hidden, int one_per_line)
 			continue;
 		}
 
+		printf("%s", entry->d_name);
+
 		if (one_per_line)
 		{
-			printf("%s\n", entry->d_name);
+			printf("\n");
 		}
 		else
 		{
-			printf("%s  ", entry->d_name);
+			printf("  ");
 		}
 	}
 
@@ -80,7 +82,7 @@ int main(int argc, char *argv[])
 		{
 			if (lstat(argv[i], &path_stat) == -1)
 			{
-				fprintf(stderr, "%s: cannot access %s: %s\n",
+				fprintf(stderr, "%s: cannot access '%s': %s\n",
 					"./hls_01", argv[i], strerror(errno));
 				exit(1);
 			}
