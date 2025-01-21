@@ -31,9 +31,9 @@ void print_directory_contents(char *dir_name, int show_hidden, int one_per_line)
 	{
 		if (show_hidden == 0 && entry->d_name[0] == '.')
 			continue;
+
 		strcpy(filenames[count], entry->d_name);
 		count++;
-
 		if (count >= MAX_FILES)
 			break;
 	}
