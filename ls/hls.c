@@ -1,9 +1,11 @@
 #include <dirent.h>
-#include <errno.h>
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 /**
  * print_directory_contents - Prints the contents of a directory
@@ -31,7 +33,7 @@ void print_directory_contents(char *dir_name, int show_hidden)
 		}
 
 		/* Convert filename to lowercase */
-		for (int i = 0; i < strlen(entry->d_name); i++)
+		for (int i = 0; i < (int)strlen(entry->d_name); i++)
 		{
 			buffer[i] = tolower(entry->d_name[i]);
 		}
