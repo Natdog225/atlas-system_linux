@@ -1,11 +1,23 @@
 #include <dirent.h>
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <ctype.h>
+
+#define MAX_FILES 1000
+
+/**
+ * compare_strings - Helper function for qsort to compare strings
+ * @a: First string
+ * @b: Second string
+ *
+ * Return: Result of strcmp
+ */
+int compare_strings(const void *a, const void *b)
+{
+	return (strcmp(*(char **)a, *(char **)b));
+}
 
 /**
  * print_directory_contents - Prints the contents of a directory
@@ -16,7 +28,9 @@ void print_directory_contents(char *dir_name, int show_hidden)
 {
 	DIR *dir;
 	struct dirent *entry;
-	char buffer[1024];
+	char filenames[MAX_FILES][1024];
+	int count = 0;
+	int i;
 
 	dir = opendir(dir_name);
 	if (dir == NULL)
@@ -32,19 +46,25 @@ void print_directory_contents(char *dir_name, int show_hidden)
 			continue;
 		}
 
-		/* Convert filename to lowercase */
-		for (int i = 0; i < (int)strlen(entry->d_name); i++)
-		{
-			buffer[i] = tolower(entry->d_name[i]);
-		}
-		buffer[strlen(entry->d_name)] = '\0';
+		strcpy(filenames[count], entry->d_name);
+		count++;
 
-		/* Print the formatted string */
-		snprintf(buffer, sizeof(buffer), "%-*s\n", 20, entry->d_name);
-		fwrite(buffer, 1, strlen(buffer), stdout);
+		if (count >= MAX_FILES)
+		{
+			break;
+		}
 	}
 
 	closedir(dir);
+
+	/* Sort filenames alphabetically */
+	qsort(filenames, count, sizeof(char *), compare_strings);
+
+	/* Print sorted filenames */
+	for (i = 0; i < count; i++)
+	{
+		printf("%s\n", filenames[i]); /* Removed fixed width formatting */
+	}
 }
 
 /**
@@ -71,7 +91,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			if (argc > 2) /* Only print colon if more than one path, could be fix? */
+			if (argc > 2)
 			{
 				printf("%s:\n", argv[i]);
 			}
@@ -79,7 +99,7 @@ int main(int argc, char *argv[])
 			if (lstat(argv[i], &path_stat) == -1)
 			{
 				fprintf(stderr, "%s: cannot access %s: %s\n",
-						argv[0], argv[i], strerror(errno));
+					argv[0], argv[i], strerror(errno));
 				exit(1);
 			}
 
