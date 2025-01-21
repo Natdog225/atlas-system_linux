@@ -30,7 +30,7 @@ void print_directory_contents(char *dir_name, int show_hidden, int one_per_line)
 	while ((entry = readdir(dir)) != NULL)
 	{
 		if (show_hidden == 0 && entry->d_name[0] == '.')
-
+			continue;
 		strcpy(filenames[count], entry->d_name);
 		count++;
 
