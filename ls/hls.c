@@ -8,7 +8,7 @@
 #define MAX_FILES 1000
 
 /**
- * compare_strings - Helper function for qsort to compare strings
+ * compare_strings - Helper function for qsort
  * @a: First string
  * @b: Second string
  *
@@ -63,6 +63,8 @@ void print_directory_contents(char *dir_name, int show_hidden)
 	{
 		printf("%s\n", filenames[i]);
 	}
+
+	printf("\n"); /* Add a newline after each directory */
 }
 
 /**
@@ -89,11 +91,6 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			if (argc > 2)
-			{
-				printf("%s:\n", argv[i]);
-			}
-
 			if (lstat(argv[i], &path_stat) == -1)
 			{
 				fprintf(stderr, "%s: cannot access %s: %s\n",
@@ -103,6 +100,7 @@ int main(int argc, char *argv[])
 
 			if (S_ISDIR(path_stat.st_mode))
 			{
+				printf("%s:\n", argv[i]);
 				print_directory_contents(argv[i], show_hidden);
 			}
 			else
