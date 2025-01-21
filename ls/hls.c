@@ -2,48 +2,66 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
 #include <ctype.h>
 
-/**
- * print_directory_contents - Prints the contents of a directory
- * @dir_name: Name of the directory
- * @show_hidden: Flag to show hidden files
- */
+#define MAX_FILES 1000
 void print_directory_contents(char *dir_name, int show_hidden)
 {
-	DIR *dir;
-	struct dirent *entry;
-	char buffer[1024];
+    DIR *dir;
+    struct dirent *entry;
+    char buffer[1024];
+    char filenames[MAX_FILES][1024];
 
-	dir = opendir(dir_name);
-	if (dir == NULL)
-	{
-		perror("opendir");
-		exit(1);
-	}
+    dir = opendir(dir_name);
+    if (dir == NULL)
+    {
+        perror("opendir");
+        exit(1);
+    }
 
-	while ((entry = readdir(dir)) != NULL)
-	{
-		if (show_hidden == 0 && entry->d_name[0] == '.')
-		{
-			continue;
-		}
+    int count = 0;
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (show_hidden == 0 && entry->d_name[0] == '.')
+        {
+            continue;
+        }
 
-		/* Convert filename to lowercase */
-		for (int i = 0; i < (int)strlen(entry->d_name); i++)
+		// Convert filename to lowercase
+		for (int i = 0; i < strlen(entry->d_name); i++)
 		{
 			buffer[i] = tolower(entry->d_name[i]);
 		}
 		buffer[strlen(entry->d_name)] = '\0';
 
-		/* Print the formatted string */
-		snprintf(buffer, sizeof(buffer), "%-*s\n", 20, entry->d_name);
+		// Store filename
+		strcpy(filenames[count], buffer);
+		count++;
+
+		if (count >= MAX_FILES)
+		{
+			break;
+		}
+	}
+
+	closedir(dir);
+
+	// Sort filenames alphabetically
+	qsort(filenames, count, sizeof(char*), compare_strings);
+
+	// Print sorted filenames
+	for (int i = 0; i < count; i++)
+	{
+		snprintf(buffer, sizeof(buffer), "%-*s\n", 20, filenames[i]);
 		fwrite(buffer, 1, strlen(buffer), stdout);
 	}
 	closedir(dir);
+}
+
+// Helper function for qsort
+int compare_strings(const void *a, const void *b)
+{
+    return strcmp(*(char**)a, *(char**)b);
 }
 
 /**
