@@ -61,7 +61,7 @@ void print_directory_contents(char *dir_name, int show_hidden)
 
 	for (i = 0; i < count; i++)
 	{
-		printf("%s\n", filenames[i]);
+		printf("%-*s\n", 20, filenames[i]);
 	}
 
 	printf("\n"); /* Add a newline after each directory */
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 	{
 		if (argv[i][0] == '-')
 		{
-			if (argv[i][0] == '-' && argv[i][1] == 'a' && argv[i][2] == '\0')
+			if (strcmp(argv[i], "-a") == 0)
 			{
 				show_hidden = 1;
 			}
@@ -100,7 +100,6 @@ int main(int argc, char *argv[])
 
 			if (S_ISDIR(path_stat.st_mode))
 			{
-				printf("%s:\n", argv[i]);
 				print_directory_contents(argv[i], show_hidden);
 			}
 			else
