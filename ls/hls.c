@@ -57,13 +57,11 @@ void print_directory_contents(char *dir_name, int show_hidden)
 
 	closedir(dir);
 
-	/* Sort filenames alphabetically */
-	qsort(filenames, count, sizeof(char *), compare_strings);
+	qsort(filenames, count, sizeof(filenames[0]), compare_strings);
 
-	/* Print sorted filenames */
 	for (i = 0; i < count; i++)
 	{
-		printf("%s\n", filenames[i]); /* Removed fixed width formatting */
+		printf("%s\n", filenames[i]);
 	}
 }
 
