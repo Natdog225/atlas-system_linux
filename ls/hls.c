@@ -8,7 +8,7 @@
 #define MAX_FILES 1000
 
 /**
- * compare_strings - Helper function for qsort
+ * compare_strings - Helper function for qsort to compare strings
  * @a: First string
  * @b: Second string
  *
@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
 	{
 		if (argv[i][0] == '-')
 		{
-			/* Manually compare argv[i] to "-a" */
 			if (argv[i][0] == '-' && argv[i][1] == 'a' && argv[i][2] == '\0')
 			{
 				show_hidden = 1;
@@ -93,12 +92,16 @@ int main(int argc, char *argv[])
 			if (lstat(argv[i], &path_stat) == -1)
 			{
 				fprintf(stderr, "%s: cannot access %s: %s\n",
-					argv[0], argv[i], strerror(errno));
+						argv[0], argv[i], strerror(errno));
 				exit(1);
 			}
 
 			if (S_ISDIR(path_stat.st_mode))
 			{
+				if (argc > 2)
+				{
+					printf("%s:\n", argv[i]);
+				}
 				print_directory_contents(argv[i], show_hidden);
 			}
 			else
