@@ -9,8 +9,9 @@
  * print_directory_contents - Prints the contents of a directory.
  * @dir_name: Name of the directory.
  * @show_hidden: Flag to show hidden files.
+ * @one_per_line: Flag to print one entry per line.
  */
-void print_directory_contents(char *dir_name, int show_hidden)
+void print_directory_contents(char *dir_name, int show_hidden, int one_per_line)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -29,9 +30,22 @@ void print_directory_contents(char *dir_name, int show_hidden)
 		{
 			continue;
 		}
-		printf("%s  ", entry->d_name);
+
+		if (one_per_line)
+		{
+			printf("%s\n", entry->d_name);
+		}
+		else
+		{
+			printf("%s  ", entry->d_name);
+		}
 	}
-	printf("\n");
+
+	if (!one_per_line)
+	{
+		printf("\n");
+	}
+
 	closedir(dir);
 }
 
@@ -45,6 +59,7 @@ void print_directory_contents(char *dir_name, int show_hidden)
 int main(int argc, char *argv[])
 {
 	int show_hidden = 0;
+	int one_per_line = 0;
 	struct stat path_stat;
 	int i;
 
@@ -56,13 +71,17 @@ int main(int argc, char *argv[])
 			{
 				show_hidden = 1;
 			}
+			else if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+			{
+				one_per_line = 1;
+			}
 		}
 		else
 		{
 			if (lstat(argv[i], &path_stat) == -1)
 			{
 				fprintf(stderr, "%s: cannot access %s: %s\n",
-						"./hls_01", argv[i], strerror(errno));
+					"./hls_01", argv[i], strerror(errno));
 				exit(1);
 			}
 
@@ -72,7 +91,7 @@ int main(int argc, char *argv[])
 				{
 					printf("%s:\n", argv[i]);
 				}
-				print_directory_contents(argv[i], show_hidden);
+				print_directory_contents(argv[i], show_hidden, one_per_line);
 			}
 			else
 			{
