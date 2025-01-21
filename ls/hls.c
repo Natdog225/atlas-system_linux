@@ -5,37 +5,21 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define MAX_FILES 1000
-
 /**
- * compare_strings - Helper function for qsort to compare strings
- * @a: First string
- * @b: Second string
- *
- * Return: Result of strcmp
- */
-int compare_strings(const void *a, const void *b)
-{
-	return (strcmp(*(char **)a, *(char **)b));
-}
-
-/**
- * print_directory_contents - Prints the contents of a directory
- * @dir_name: Name of the directory
- * @show_hidden: Flag to show hidden files
+ * print_directory_contents - Prints the contents of a directory.
+ * @dir_name: Name of the directory.
+ * @show_hidden: Flag to show hidden files.
  */
 void print_directory_contents(char *dir_name, int show_hidden)
 {
 	DIR *dir;
 	struct dirent *entry;
-	char filenames[MAX_FILES][1024];
-	int count = 0;
-	int i;
 
 	dir = opendir(dir_name);
 	if (dir == NULL)
 	{
-		perror("opendir");
+		fprintf(stderr, "./hls: cannot access '%s': %s\n",
+				dir_name, strerror(errno));
 		exit(1);
 	}
 
@@ -45,24 +29,10 @@ void print_directory_contents(char *dir_name, int show_hidden)
 		{
 			continue;
 		}
-
-		strcpy(filenames[count], entry->d_name);
-		count++;
-
-		if (count >= MAX_FILES)
-		{
-			break;
-		}
+		printf("%s  ", entry->d_name);
 	}
-
+	printf("\n");
 	closedir(dir);
-
-	qsort(filenames, count, sizeof(filenames[0]), compare_strings);
-
-	for (i = 0; i < count; i++)
-	{
-		printf("%s\n", filenames[i]);
-	}
 }
 
 /**
@@ -91,8 +61,8 @@ int main(int argc, char *argv[])
 		{
 			if (lstat(argv[i], &path_stat) == -1)
 			{
-				fprintf(stderr, "%s: cannot access %s: %s\n",
-						argv[0], argv[i], strerror(errno));
+				fprintf(stderr, "./hls: cannot access '%s': %s\n",
+						argv[i], strerror(errno));
 				exit(1);
 			}
 
