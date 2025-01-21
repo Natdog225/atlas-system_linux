@@ -33,13 +33,12 @@ void print_directory_contents(char *dir_name, int show_hidden)
 		{
 			printf("  ");
 		}
-		printf("%s  ", entry->d_name);
+		printf("%s", entry->d_name);
 		count++;
 	}
 	if (count > 0)
 	{
 		printf("\n");
-
 	}
 	closedir(dir);
 }
@@ -68,8 +67,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			/* Print directory name if multiple directories are provided */
-			if (argc > 2)
+			if (argc > 2) /* Only print colon if more than one path could be fix? */
 			{
 				printf("%s:\n", argv[i]);
 			}
