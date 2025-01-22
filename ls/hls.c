@@ -7,9 +7,19 @@
 
 #define MAX_FILES 1000
 
+int custom_strcmp(const char *s1, const char *s2)
+{
+	while (*s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
+	return *s1 - *s2;
+}
+
 int compare_strings(const void *a, const void *b)
 {
-	return strcmp(*(char **)a, *(char **)b);
+	return custom_strcmp(*(char **)a, *(char **)b);
 }
 
 void print_directory_contents(char *dir_name, int show_hidden, int one_per_line)
@@ -59,9 +69,9 @@ int main(int argc, char *argv[])
 	{
 		if (argv[i][0] == '-')
 		{
-			if (strcmp(argv[i], "-a") == 0)
+			if (custom_strcmp(argv[i], "-a") == 0)
 				show_hidden = 1;
-			else if (strcmp(argv[i], "-1") == 0)
+			else if (custom_strcmp(argv[i], "-1") == 0)
 				one_per_line = 1;
 			else
 			{
