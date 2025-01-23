@@ -40,7 +40,7 @@ void print_long_format(struct stat *sb, const char *name)
 	pw = getpwuid(sb->st_uid);
 	gr = getgrgid(sb->st_gid);
 
-	printf("%s %hu %s %s %lld %s %s\n",
+	printf("%s %lu %s %s %ld %s %s\n",
 		perms, sb->st_nlink,
 		pw ? pw->pw_name : "",
 		gr ? gr->gr_name : "",
