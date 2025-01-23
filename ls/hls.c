@@ -1,6 +1,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <grp.h>
+#include <limits.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,17 +9,17 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include <limits.h>
 
 /**
- * print_long_format - Prints file information in long format
- * @sb: Pointer to stat structure
- * @name: Name of the file
+ * print_long_format - Prints file information in long format.
+ * @sb: Pointer to stat structure.
+ * @name: Name of the file.
  */
 void print_long_format(struct stat *sb, const char *name)
 {
 	static char perms[] = "----------";
-	static const char *const fmt[] = {"---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"};
+	static const char *const fmt[] = {"---", "--x", "-w-", "-wx",
+					    "r--", "r-x", "rw-", "rwx"};
 	struct passwd *pw;
 	struct group *gr;
 	char date[32];
@@ -39,7 +40,7 @@ void print_long_format(struct stat *sb, const char *name)
 	pw = getpwuid(sb->st_uid);
 	gr = getgrgid(sb->st_gid);
 
-	printf("%s %lu %s %s %zu %s %s\n",
+	printf("%s %hu %s %s %lld %s %s\n",
 		perms, sb->st_nlink,
 		pw ? pw->pw_name : "",
 		gr ? gr->gr_name : "",
@@ -47,10 +48,10 @@ void print_long_format(struct stat *sb, const char *name)
 }
 
 /**
- * print_file_info - Prints file information
- * @path: Path to the file
- * @name: Name of the file
- * @show_hidden: Flag to show hidden files
+ * print_file_info - Prints file information.
+ * @path: Path to the file.
+ * @name: Name of the file.
+ * @show_hidden: Flag to show hidden files.
  */
 void print_file_info(const char *path, const char *name, int show_hidden)
 {
@@ -73,12 +74,14 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 			perror("opendir");
 			exit(1);
 		}
+
 		while ((entry = readdir(dir)) != NULL)
 		{
 			if (!show_hidden && entry->d_name[0] == '.')
 			{
 				continue;
 			}
+
 			snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
 
 			if (lstat(full_path, &sb) == -1)
@@ -87,8 +90,10 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 					full_path, strerror(errno));
 				exit(1);
 			}
+
 			print_long_format(&sb, entry->d_name);
 		}
+
 		closedir(dir);
 	}
 	else
@@ -107,7 +112,7 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 int main(int argc, char *argv[])
 {
 	int show_all = 0;
-	/*int long_format = 0; */
+	/* int long_format = 0; */
 	int opt;
 	int i;
 
@@ -118,9 +123,11 @@ int main(int argc, char *argv[])
 		case 'a':
 			show_all = 1;
 			break;
-		case 'l':
-			long_format = 1;
-			break;
+		/*
+		*case 'l':
+		     * long_format = 1;
+		     break;
+			 */
 		default:
 			fprintf(stderr, "Usage: %s [-al] [FILE...]\n", argv[0]);
 			exit(EXIT_FAILURE);
