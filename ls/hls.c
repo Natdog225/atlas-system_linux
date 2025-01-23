@@ -107,7 +107,7 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 int main(int argc, char *argv[])
 {
 	int show_all = 0;
-	int long_format = 0;
+	/*int long_format = 0; */
 	int opt;
 	int i;
 
