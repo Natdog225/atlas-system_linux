@@ -69,7 +69,7 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 
 	if (lstat(path, &sb) == -1)
 	{
-		fprintf(stderr, "./hls: cannot access '%s': %s\n", path, strerror(errno));
+		fprintf(stderr, "./hls: cannot access '%s': Error %d\n", path, errno);
 		exit(1);
 	}
 
@@ -78,7 +78,8 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 		dir = opendir(path);
 		if (dir == NULL)
 		{
-			perror("opendir");
+			fprintf(stderr, "./hls: cannot access '%s': Error %d\n",
+					path, errno);
 			exit(1);
 		}
 
@@ -89,25 +90,25 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 				continue;
 			}
 
+			/* Construct full_path manually without snprintf or strcpy */
 			char full_path[PATH_MAX];
 			char *p = full_path;
 
-			/* Manually copy 'path' to 'full_path' */
 			while (*path != '\0')
 			{
 				*p++ = *path++;
 			}
 
-			*p++ = '/'; /* Add the slash */
+			*p++ = '/';
 
-			/* Manually copy 'entry->d_name' to 'full_path' */
 			const char *d_name = entry->d_name;
+
 			while (*d_name != '\0')
 			{
 				*p++ = *d_name++;
 			}
 
-			*p = '\0'; /* Null-terminate full_path */
+			*p = '\0';
 
 			if (lstat(full_path, &sb) == -1)
 			{
@@ -146,10 +147,6 @@ int main(int argc, char *argv[])
 			if (argv[i][1] == 'a' && argv[i][2] == '\0')
 			{
 				show_all = 1;
-			}
-			else if (argv[i][1] == 'l' && argv[i][2] == '\0')
-			{
-				/* long_format = 1; */ /* Not used in this version */
 			}
 			else
 			{
