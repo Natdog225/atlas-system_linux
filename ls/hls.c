@@ -23,10 +23,11 @@ void print_long_format(struct stat *sb, const char *name)
 	struct passwd *pw;
 	struct group *gr;
 	char *date;
+	char *p;
 
 	date = ctime(&sb->st_mtime);
-	char *p = date;
 
+	p = date;
 	while (*p != '\n' && *p != '\0')
 	{
 		p++;
@@ -119,35 +120,39 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 int main(int argc, char *argv[])
 {
 	int show_all = 0;
-	/* int long_format = 0; */
-	int opt;
 	int i;
 
-	while ((opt = getopt(argc, argv, "al")) != -1)
+	for (i = 1; i < argc; i++)
 	{
-		switch (opt)
+		if (argv[i][0] == '-')
 		{
-		case 'a':
-			show_all = 1;
-			break;
-		/*
-		*case 'l':
-			 * long_format = 1;
-			 break;
-			 */
-		default:
-			fprintf(stderr, "Usage: %s [-al] [FILE...]\n", argv[0]);
-			exit(EXIT_FAILURE);
+			if (argv[i][1] == 'a' && argv[i][2] == '\0')
+			{
+				show_all = 1;
+			}
+			else if (argv[i][1] == 'l' && argv[i][2] == '\0')
+			{
+				/* long_format = 1; */ /* Not used in this version */
+			}
+			else
+			{
+				fprintf(stderr, "Usage: %s [-al] [FILE...]\n", argv[0]);
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			break; /* Stop parsing options when a non-option is encountered */
 		}
 	}
 
-	if (optind >= argc)
+	if (i == 1) /* No paths provided, list current directory */
 	{
 		print_file_info(".", ".", show_all);
 	}
 	else
 	{
-		for (i = optind; i < argc; i++)
+		for (; i < argc; i++)
 		{
 			print_file_info(argv[i], argv[i], show_all);
 		}
