@@ -63,7 +63,7 @@ const char *dirent_type_name(unsigned char d_type)
 
 		return PATH_BUF;
 	}
-}
+
 
 int mode_to_str(char *buf, mode_t mode)
 {
