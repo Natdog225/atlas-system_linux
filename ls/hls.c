@@ -41,8 +41,30 @@ const char *dirent_type_name(unsigned char d_type)
 
 const char *path_join(const char *dirpath, const char *entry_name)
 {
-	snprintf(PATH_BUF, PATH_MAX, "%s/%s", dirpath, entry_name);
-	return (PATH_BUF);
+	const char *path_join(const char *dirpath, const char *entry_name)
+	{
+		char *dest = PATH_BUF;
+
+		/* Copy dirpath to PATH_BUF */
+		while (*dirpath)
+		{
+			*dest++ = *dirpath++;
+		}
+
+		/* Add the '/' separator */
+		*dest++ = '/';
+
+		/* Copy entry_name to PATH_BUF */
+		while (*entry_name)
+		{
+			*dest++ = *entry_name++;
+		}
+
+		/* Null-terminate the string */
+		*dest = '\0';
+
+		return PATH_BUF;
+	}
 }
 
 int mode_to_str(char *buf, mode_t mode)
