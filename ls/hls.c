@@ -90,9 +90,24 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 			}
 
 			char full_path[PATH_MAX];
-			strcpy(full_path, path);
-			strcat(full_path, "/");
-			strcat(full_path, entry->d_name);
+			char *p = full_path;
+
+			/* Manually copy 'path' to 'full_path' */
+			while (*path != '\0')
+			{
+				*p++ = *path++;
+			}
+
+			*p++ = '/'; /* Add the slash */
+
+			/* Manually copy 'entry->d_name' to 'full_path' */
+			const char *d_name = entry->d_name;
+			while (*d_name != '\0')
+			{
+				*p++ = *d_name++;
+			}
+
+			*p = '\0'; /* Null-terminate full_path */
 
 			if (lstat(full_path, &sb) == -1)
 			{
