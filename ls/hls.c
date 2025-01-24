@@ -90,7 +90,10 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 				continue;
 			}
 
-			snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
+			char full_path[PATH_MAX];
+			strcpy(full_path, path);
+			strcat(full_path, "/");
+			strcat(full_path, entry->d_name);
 
 			if (lstat(full_path, &sb) == -1)
 			{
