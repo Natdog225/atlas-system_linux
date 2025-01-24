@@ -10,57 +10,122 @@
 #include <time.h>
 #include <unistd.h>
 
-/**
- * print_long_format - Prints file information in long format.
- * @sb: Pointer to stat structure.
- * @name: Name of the file.
- */
-void print_long_format(struct stat *sb, const char *name)
+static char PATH_BUF[PATH_MAX];
+static char PERMS_ALPHAMAP[3] = {'r', 'w', 'x'};
+static char FTYPE_ALPHAMAP[16] = {
+	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
+	'?'};
+
+const char *dirent_type_name(unsigned char d_type)
 {
-	static char perms[] = "----------";
-	static const char *const fmt[] = {"---", "--x", "-w-", "-wx",
-									  "r--", "r-x", "rw-", "rwx"};
-	struct passwd *pw;
-	struct group *gr;
-	char *date;
-	char *p;
-
-	date = ctime(&sb->st_mtime);
-
-	p = date;
-	while (*p != '\n' && *p != '\0')
+	switch (d_type)
 	{
-		p++;
+	case DT_BLK:
+		return "block_device";
+	case DT_CHR:
+		return "character_device";
+	case DT_DIR:
+		return "directory";
+	case DT_FIFO:
+		return "named_pipe";
+	case DT_LNK:
+		return "symbolic_link";
+	case DT_REG:
+		return "file";
+	case DT_SOCK:
+		return "socket";
+	default: /* DT_UNKNOWN */
+		return "unknown";
 	}
-	*p = '\0';
-
-	perms[0] = (sb->st_mode & S_IFDIR) ? 'd' : '-';
-	perms[1] = fmt[(sb->st_mode >> 6) & 07][0];
-	perms[2] = fmt[(sb->st_mode >> 6) & 07][1];
-	perms[3] = fmt[(sb->st_mode >> 6) & 07][2];
-	perms[4] = fmt[(sb->st_mode >> 3) & 07][0];
-	perms[5] = fmt[(sb->st_mode >> 3) & 07][1];
-	perms[6] = fmt[(sb->st_mode >> 3) & 07][2];
-	perms[7] = fmt[sb->st_mode & 07][0];
-	perms[8] = fmt[sb->st_mode & 07][1];
-	perms[9] = fmt[sb->st_mode & 07][2];
-
-	pw = getpwuid(sb->st_uid);
-	gr = getgrgid(sb->st_gid);
-
-	printf("%s %lu %s %s %ld %s %s\n",
-		   perms, sb->st_nlink,
-		   pw ? pw->pw_name : "",
-		   gr ? gr->gr_name : "",
-		   sb->st_size, date, name);
 }
 
-/**
- * print_file_info - Prints file information.
- * @path: Path to the file.
- * @name: Name of the file.
- * @show_hidden: Flag to show hidden files.
- */
+const char *path_join(const char *dirpath, const char *entry_name)
+{
+	snprintf(PATH_BUF, PATH_MAX, "%s/%s", dirpath, entry_name);
+	return (PATH_BUF);
+}
+
+int mode_to_str(char *buf, mode_t mode)
+{
+	mode_t pmask, i;
+
+	/* maps the file-type bits to a value 0-15 */
+	*buf++ = FTYPE_ALPHAMAP[(mode & S_IFMT) >> 12];
+
+	/* masks read permissions of owner first */
+	pmask = S_IRUSR;
+
+	/**
+	 * check each permission bit and map to alpha code
+	 * owner:  i = 0-2 (rwx)
+	 * group:  i = 3-5 (rwx)
+	 * others: i = 6-8 (rwx)
+	 */
+	for (i = 0; i < 9; ++i, pmask >>= 1)
+		*buf++ = (mode & pmask) ? PERMS_ALPHAMAP[i % 3] : '-';
+
+	*buf = '\0';
+
+	return (0);
+}
+
+typedef struct longlistfmt
+{
+	char mode[16];
+	nlink_t nlinks;
+	const char *user;
+	const char *group;
+	off_t size;
+	const char *modified;
+	const char *entry_name;
+} longlistfmt_t;
+
+int longlistfmt_init(longlistfmt_t *longlist, const char *entry_name,
+					 struct stat *statbuf)
+{
+	struct passwd *pwd = NULL;
+	struct group *group = NULL;
+
+	mode_to_str(longlist->mode, statbuf->st_mode);
+	longlist->nlinks = statbuf->st_nlink;
+
+	pwd = getpwuid(statbuf->st_uid);
+	group = getgrgid(statbuf->st_gid);
+
+	if (!pwd || !group)
+		return (-1);
+
+	longlist->user = pwd->pw_name;
+	longlist->group = group->gr_name;
+	longlist->size = statbuf->st_size;
+	longlist->modified = ctime(&(statbuf->st_mtime));
+	longlist->entry_name = entry_name;
+	return (0);
+}
+
+void longlistfmt_print(longlistfmt_t *longlist)
+{
+	/* mode nlink user group size modified entry_name */
+	printf("%s %lu %s %s %-4lu %.12s %s\n", longlist->mode, longlist->nlinks,
+		   longlist->user, longlist->group, longlist->size,
+		   /* trimming the \n off of ctime string */
+		   longlist->modified + 4, longlist->entry_name);
+}
+
+void print_long_format(struct stat *sb, const char *name)
+{
+	longlistfmt_t longlist;
+
+	if (longlistfmt_init(&longlist, name, sb) == 0)
+	{
+		longlistfmt_print(&longlist);
+	}
+	else
+	{
+		perror("longlistfmt_init");
+	}
+}
+
 void print_file_info(const char *path, const char *name, int show_hidden)
 {
 	DIR *dir;
@@ -78,8 +143,7 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 		dir = opendir(path);
 		if (dir == NULL)
 		{
-			fprintf(stderr, "./hls: cannot access '%s': Error %d\n",
-					path, errno);
+			fprintf(stderr, "./hls: cannot access '%s': Error %d\n", path, errno);
 			exit(1);
 		}
 
@@ -90,30 +154,12 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 				continue;
 			}
 
-			/* Construct full_path manually without snprintf or strcpy */
-			char full_path[PATH_MAX];
-			char *p = full_path;
-
-			while (*path != '\0')
-			{
-				*p++ = *path++;
-			}
-
-			*p++ = '/';
-
-			const char *d_name = entry->d_name;
-
-			while (*d_name != '\0')
-			{
-				*p++ = *d_name++;
-			}
-
-			*p = '\0';
+			const char *full_path = path_join(path, entry->d_name);
 
 			if (lstat(full_path, &sb) == -1)
 			{
-				fprintf(stderr, "./hls: cannot access '%s': Error %d\n",
-						full_path, errno);
+				fprintf(stderr, "./hls: cannot access '%s': Error %d\n", full_path,
+						errno);
 				exit(1);
 			}
 
