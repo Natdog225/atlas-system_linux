@@ -23,7 +23,7 @@ void print_long_format(struct stat *sb, const char *name)
 	struct passwd *pw;
 	struct group *gr;
 	char date[32];
-	struct tm timeinfo;
+struct tm tm;
 
 	gmtime_r(&sb->st_mtime, &tm);
 	strftime(date, sizeof(date), "%b %d %H:%M", &tm);
