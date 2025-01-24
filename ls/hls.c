@@ -25,8 +25,8 @@ void print_long_format(struct stat *sb, const char *name)
 	char date[32];
 	struct tm timeinfo;
 
-	localtime_r(&sb->st_mtime, &timeinfo);
-	strftime(date, sizeof(date), "%b %d %H:%M", &timeinfo);
+	gmtime_r(&sb->st_mtime, &tm);
+	strftime(date, sizeof(date), "%b %d %H:%M", &tm);
 
 	perms[0] = (sb->st_mode & S_IFDIR) ? 'd' : '-';
 	perms[1] = fmt[(sb->st_mode >> 6) & 07][0];
