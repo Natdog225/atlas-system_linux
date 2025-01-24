@@ -111,8 +111,8 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 
 			if (lstat(full_path, &sb) == -1)
 			{
-				fprintf(stderr, "./hls: cannot access '%s': %s\n",
-						full_path, strerror(errno));
+				fprintf(stderr, "./hls: cannot access '%s': Error %d\n",
+						full_path, errno);
 				exit(1);
 			}
 
