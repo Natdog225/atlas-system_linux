@@ -22,11 +22,11 @@ void print_long_format(struct stat *sb, const char *name)
 					    "r--", "r-x", "rw-", "rwx"};
 	struct passwd *pw;
 	struct group *gr;
-	char date[32];
-struct tm tm;
+	char *date;
 
-	gmtime_r(&sb->st_mtime, &tm);
-	strftime(date, sizeof(date), "%b %d %H:%M", &tm);
+
+	date = ctime(&sb->st_mtime);
+	date[strlen(date) - 1] = '\0';
 
 	perms[0] = (sb->st_mode & S_IFDIR) ? 'd' : '-';
 	perms[1] = fmt[(sb->st_mode >> 6) & 07][0];
