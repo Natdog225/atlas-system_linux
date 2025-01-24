@@ -19,14 +19,19 @@ void print_long_format(struct stat *sb, const char *name)
 {
 	static char perms[] = "----------";
 	static const char *const fmt[] = {"---", "--x", "-w-", "-wx",
-					    "r--", "r-x", "rw-", "rwx"};
+									  "r--", "r-x", "rw-", "rwx"};
 	struct passwd *pw;
 	struct group *gr;
 	char *date;
 
-
 	date = ctime(&sb->st_mtime);
-	date[strlen(date) - 1] = '\0';
+	char *p = date;
+
+	while (*p != '\n' && *p != '\0')
+	{
+		p++;
+	}
+	*p = '\0';
 
 	perms[0] = (sb->st_mode & S_IFDIR) ? 'd' : '-';
 	perms[1] = fmt[(sb->st_mode >> 6) & 07][0];
@@ -43,10 +48,10 @@ void print_long_format(struct stat *sb, const char *name)
 	gr = getgrgid(sb->st_gid);
 
 	printf("%s %lu %s %s %ld %s %s\n",
-		perms, sb->st_nlink,
-		pw ? pw->pw_name : "",
-		gr ? gr->gr_name : "",
-		sb->st_size, date, name);
+		   perms, sb->st_nlink,
+		   pw ? pw->pw_name : "",
+		   gr ? gr->gr_name : "",
+		   sb->st_size, date, name);
 }
 
 /**
@@ -89,7 +94,7 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 			if (lstat(full_path, &sb) == -1)
 			{
 				fprintf(stderr, "./hls: cannot access '%s': %s\n",
-					full_path, strerror(errno));
+						full_path, strerror(errno));
 				exit(1);
 			}
 
@@ -127,8 +132,8 @@ int main(int argc, char *argv[])
 			break;
 		/*
 		*case 'l':
-		     * long_format = 1;
-		     break;
+			 * long_format = 1;
+			 break;
 			 */
 		default:
 			fprintf(stderr, "Usage: %s [-al] [FILE...]\n", argv[0]);
