@@ -66,7 +66,6 @@ void print_file_info(const char *path, const char *name, int show_hidden)
 	DIR *dir;
 	struct dirent *entry;
 	struct stat sb;
-	char full_path[PATH_MAX];
 
 	if (lstat(path, &sb) == -1)
 	{
