@@ -39,8 +39,6 @@ const char *dirent_type_name(unsigned char d_type)
 	}
 }
 
-const char *path_join(const char *dirpath, const char *entry_name)
-{
 	const char *path_join(const char *dirpath, const char *entry_name)
 	{
 		char *dest = PATH_BUF;
