@@ -7,7 +7,7 @@
 
 void print_err(const char *program, const char *path)
 {
-	fprintf(stderr, "%s: cannot access %s: %s\n", program, path);
+	fprintf(stderr, "%s: cannot access %s: ", program, path);
 	perror(NULL);
 }
 
