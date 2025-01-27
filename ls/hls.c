@@ -149,9 +149,20 @@ int main(int argc, const char *argv[])
 		{
 			option_one = 1;
 		}
-		else if (argv[i][0] != '-')
-		{ /* Only count non-option arguments as directories */
-			dir_count++;
+		else
+		{
+			/* Skip invalid options (like -11111) */
+			if (argv[i][0] == '-' && (argv[i][1] != '1' || argv[i][2] != '\0'))
+			{
+				print_err(argv[0], argv[i]); /* Print an error for invalid options */
+				continue;
+			}
+
+			/* Count valid directory arguments */
+			if (argv[i][0] != '-')
+			{
+				dir_count++;
+			}
 		}
 	}
 
