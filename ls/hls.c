@@ -141,6 +141,7 @@ int main(int argc, const char *argv[])
 {
 	struct stat sb;
 	int option_one = 0;
+	int dir_count = 0;
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -148,46 +149,52 @@ int main(int argc, const char *argv[])
 		{
 			option_one = 1;
 		}
-	}
-
-	if (argc == 1 || (argc == 2 && option_one))
-	{ /* Check for -1 option with no path */
-		print_directory_contents(".", option_one);
-	}
-	else
-	{
-		for (int i = 1; i < argc; i++)
+		else
 		{
-			/* Skip option arguments ONLY if it's the -1 option */
-			if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
-			{
-				continue;
+			/* Check if the argument is a directory (without using lstat) */
+			if (argv[i][0] != '-')
+			{ /* Simple check: assume it's a directory if it doesn't start with '-' */
+				dir_count++;
 			}
 
-			if (lstat(argv[i], &sb) == 0)
-			{
-				if (S_ISDIR(sb.st_mode))
-				{
-					if (argc > 3 || (argc == 3 && !option_one))
-					{ /* Print directory name if multiple arguments */
-						printf("%s:\n", argv[i]);
-					}
-					print_directory_contents(argv[i], option_one);
-					if (argc > 2 && i < argc - 1)
-					{ /* Add extra newline if needed */
-						printf("\n");
-					}
-				}
-				else
-				{
-					print_file_info(argv[i]);
-				}
+			if (argc == 1 || (argc == 2 && option_one))
+			{ /* Check for -1 option with no path */
+				print_directory_contents(".", option_one);
 			}
 			else
 			{
-				print_err(argv[0], argv[i]);
+				for (int i = 1; i < argc; i++)
+				{
+					/* Skip option arguments ONLY if it's the -1 option */
+					if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+					{
+						continue;
+					}
+
+					if (lstat(argv[i], &sb) == 0)
+					{
+						if (S_ISDIR(sb.st_mode))
+						{
+							if (dir_count > 1)
+							{ /* Print directory name if multiple arguments */
+								printf("%s:\n", argv[i]);
+							}
+							print_directory_contents(argv[i], option_one);
+							if (dir_count > 1 && i < argc - 1)
+							{ /* Add extra newline if needed */
+								printf("\n");
+							}
+						}
+						else
+						{
+							print_file_info(argv[i]);
+						}
+					}
+					else
+					{
+						print_err(argv[0], argv[i]);
+					}
+				}
 			}
+			return (0);
 		}
-	}
-	return (0);
-}
