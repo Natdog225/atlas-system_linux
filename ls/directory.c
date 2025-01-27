@@ -3,6 +3,7 @@
 #include <string.h>
 #include "hls.h"
 
+/* Prints the contents of a directory. */
 void print_directory_contents(const char *directory, int option_one)
 {
 	DIR *dir;
@@ -25,8 +26,7 @@ void print_directory_contents(const char *directory, int option_one)
 				continue;
 			}
 
-			/* Always print one entry per line, regardless of option_one */
-			printf("%s\n", entry->d_name);
+			printf("%s\n", entry->d_name); /* Print one entry per line */
 		}
 		closedir(dir);
 	}
@@ -36,6 +36,7 @@ void print_directory_contents(const char *directory, int option_one)
 	}
 }
 
+/* Opens a directory. */
 int open_directory(const char *directory, DIR **dir)
 {
 	*dir = opendir(directory);
@@ -47,6 +48,7 @@ int open_directory(const char *directory, DIR **dir)
 	return 0;
 }
 
+/* Reads and prints directory entries. */
 void read_directory_entries(DIR *dir, int option_one)
 {
 	struct dirent *entry;
@@ -66,14 +68,7 @@ void read_directory_entries(DIR *dir, int option_one)
 			continue;
 		}
 
-		if (option_one)
-		{
-			printf("%s\n", entry->d_name); /* Print one entry per line */
-		}
-		else
-		{
-			printf("%s ", entry->d_name); /* Print space-separated */
-		}
+		printf("%s ", entry->d_name); /* Print space-separated */
 	}
 	if (!option_one)
 	{
