@@ -26,16 +26,19 @@ int open_directory(const char *directory, DIR **dir)
 }
 
 void read_directory_entries(DIR *dir, int option_one)
-{ /* Add option_one parameter */
+{
 	struct dirent *entry;
 
 	while ((entry = readdir(dir)) != NULL)
 	{
+		/* Skip "." and ".." entries */
 		if ((entry->d_name[0] == '.' && entry->d_name[1] == '\0') ||
 			(entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == '\0'))
 		{
 			continue;
 		}
+
+		/* Skip hidden files when -1 is used */
 		if (option_one && entry->d_name[0] == '.')
 		{
 			continue;
