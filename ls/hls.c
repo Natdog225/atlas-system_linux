@@ -154,7 +154,7 @@ int main(int argc, const char *argv[])
 			/* Skip invalid options (like -11111) */
 			if (argv[i][0] == '-' && (argv[i][1] != '1' || argv[i][2] != '\0'))
 			{
-				print_err(argv[0], argv[i]); /* Print an error for invalid options */
+				print_err(argv[0], argv[i]);
 			}
 
 			/* Count ALL non-option arguments as directories */
@@ -183,27 +183,28 @@ int main(int argc, const char *argv[])
 			{
 				if (S_ISDIR(sb.st_mode))
 				{
-					/* Print directory name if there are multiple directories */
+					/* Print directory name if multiple directories */
 					if (dir_count > 1)
 					{
 						printf("%s:\n", argv[i]);
 					}
 					print_directory_contents(argv[i], option_one);
+					/* Print newline between directories */
 					if (dir_count > 1 && i < argc - 1)
 					{
 						printf("\n");
 					}
-					else
-					{
-						/* print_file_info(argv[i]); */
-					}
 				}
 				else
 				{
-					print_err(argv[0], argv[i]);
+					print_file_info(argv[i]);
 				}
 			}
+			else
+			{
+				print_err(argv[0], argv[i]);
+			}
 		}
-		return (0);
 	}
+	return (0);
 }
