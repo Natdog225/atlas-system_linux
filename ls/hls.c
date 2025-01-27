@@ -39,7 +39,7 @@ int main(int argc, const char *argv[])
 				}
 				else
 				{
-					/*handle files - code here to print file information */
+					print_file_info(argv[i]);
 				}
 			}
 			else
