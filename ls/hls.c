@@ -41,7 +41,7 @@ int main(int argc, const char *argv[])
 			}
 			else
 			{
-				print_err(argv[0], argv[i];
+				print_err(argv[0], argv[i]);
 			}
 		}
 	}
