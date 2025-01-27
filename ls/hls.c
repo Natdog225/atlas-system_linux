@@ -151,14 +151,14 @@ int main(int argc, const char *argv[])
 		}
 		else
 		{
-			/* Skip invalid options (like -11111) */
+			/* Skip invalid options */
 			if (argv[i][0] == '-' && (argv[i][1] != '1' || argv[i][2] != '\0'))
 			{
 				print_err(argv[0], argv[i]); /* Print an error for invalid options */
 			}
+			else
 
-			/* Count valid directory arguments */
-			if (argv[i][0] != '-')
+				if (argv[i][0] != '-')
 			{
 				dir_count++;
 			}
@@ -182,9 +182,8 @@ int main(int argc, const char *argv[])
 			{
 				if (S_ISDIR(sb.st_mode))
 				{
-					if (dir_count > 1)
+					printf("%s:\n", argv[i]);
 					{
-						printf("%s:\n", argv[i]);
 					}
 					print_directory_contents(argv[i], option_one);
 					if (dir_count > 1 && i < argc - 1)
