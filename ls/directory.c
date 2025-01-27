@@ -2,34 +2,66 @@
 #include <dirent.h>
 #include <string.h>
 #include "hls.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 
-void print_directory_contents(const char *directory, int option_one)
+int main(int argc, const char *argv[])
 {
-	DIR *dir;
-	struct dirent *entry;
 
-	if (open_directory(directory, &dir) == 0)
+	if (argc == 1 || (argc == 2 && option_one))
 	{
-		while ((entry = readdir(dir)) != NULL)
+		print_directory_contents(".", option_one);
+	}
+	else
+	{
+		int dir_count = 0;
+		for (int i = 1; i < argc; i++)
 		{
-			/* Skip "." and ".." entries */
-			if ((entry->d_name[0] == '.' && entry->d_name[1] == '\0') ||
-				(entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == '\0'))
+			if (argv[i][0] != '-')
 			{
-				continue;
+				dir_count++;
 			}
-
-			/* Skip hidden files when -1 is used */
-			if (option_one && entry->d_name[0] == '.')
+		}
+		{
+			if (dir_count == 1)
 			{
-				continue;
+				print_directory_contents(argv[1], option_one);
 			}
+			else
+			{
+				for (int i = 1; i < argc; i++)
+				{
+					if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+					{
+						continue;
+					}
 
-			printf("%s\n", entry->d_name); /* Print each item on a new line */
+					if (lstat(argv[i], &sb) == 0)
+					{
+						if (S_ISDIR(sb.st_mode))
+						{
+							printf("%s:\n", argv[i]);
+							print_directory_contents(argv[i], option_one);
+							if (dir_count > 1 && i < argc - 1)
+							{
+								printf("\n");
+							}
+						}
+						else
+						{
+							print_file_info(argv[i]);
+						}
+					}
+					else
+					{
+						print_err(argv[0], argv[i]);
+					}
+				}
+			}
 		}
 	}
 }
-
+}
 
 int open_directory(const char *directory, DIR **dir)
 {
