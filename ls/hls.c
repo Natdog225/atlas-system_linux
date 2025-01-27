@@ -195,7 +195,7 @@ int main(int argc, const char *argv[])
 					}
 					else
 					{
-						print_file_info(argv[i]);
+						/* print_file_info(argv[i]); */
 					}
 				}
 				else
