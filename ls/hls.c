@@ -168,15 +168,15 @@ int main(int argc, const char *argv[])
 			{
 				if (S_ISDIR(sb.st_mode))
 				{
-					// if (argc > 2)
-					// { /* Print directory name if multiple arguments */
-					// 	printf("%s:\n", argv[i]);
-					// }
+					if (argc > 2)
+					{ /* Print directory name if multiple arguments */
+						printf("%s:\n", argv[i]);
+					}
 					print_directory_contents(argv[i], option_one);
-					// if (argc > 2 && i < argc - 1)
-					// { /* Add extra newline if needed */
-					// 	printf("\n");
-					// }
+					if (argc > 2 && i < argc - 1)
+					{ /* Add extra newline if needed */
+						printf("\n");
+					}
 				}
 				else
 				{
