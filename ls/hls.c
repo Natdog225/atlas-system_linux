@@ -101,7 +101,7 @@ int longlistfmt_init(longlistfmt_t *longlist, const char *entry_name,
 
 void longlistfmt_print(longlistfmt_t *longlist)
 {
-	printf("%s %hu %s %s %-4lld %.12s %s\n", longlist->mode, longlist->nlinks,
+	printf("%s %lu %s %s %-4lu %.12s %s\n", longlist->mode, longlist->nlinks,
 		   longlist->user, longlist->group, longlist->size,
 		   longlist->modified + 4, longlist->entry_name);
 }
