@@ -149,12 +149,9 @@ int main(int argc, const char *argv[])
 		{
 			option_one = 1;
 		}
-		else
-		{
-			if (argv[i][0] != '-')
-			{
-				dir_count++;
-			}
+		else if (argv[i][0] != '-')
+		{ /* Only count non-option arguments as directories */
+			dir_count++;
 		}
 	}
 
