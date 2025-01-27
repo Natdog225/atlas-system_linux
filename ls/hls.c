@@ -155,6 +155,7 @@ int main(int argc, const char *argv[])
 			if (argv[i][0] == '-' && (argv[i][1] != '1' || argv[i][2] != '\0'))
 			{
 				print_err(argv[0], argv[i]);
+				dir_count--;
 			}
 
 			/* Count ALL non-option arguments as directories */
