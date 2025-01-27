@@ -168,7 +168,7 @@ int main(int argc, const char *argv[])
 			{
 				if (S_ISDIR(sb.st_mode))
 				{
-					if (argc > 2)
+					if (argc > 3 || (argc == 3 && !option_one))
 					{ /* Print directory name if multiple arguments */
 						printf("%s:\n", argv[i]);
 					}
