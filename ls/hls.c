@@ -112,7 +112,8 @@ void print_long_format(struct stat *sb, const char *name)
 
 	if (longlistfmt_init(&longlist, name, sb) == 0)
 	{
-		longlistfmt_print(&longlist);
+		/* Only print the entry name for now */
+		printf("%s\n", longlist.entry_name);
 	}
 	else
 	{

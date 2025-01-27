@@ -6,10 +6,28 @@
 void print_directory_contents(const char *directory, int option_one)
 {
 	DIR *dir;
+	struct dirent *entry;
 
 	if (open_directory(directory, &dir) == 0)
 	{
-		read_directory_entries(dir, option_one);
+		while ((entry = readdir(dir)) != NULL)
+		{
+			/* Skip "." and ".." entries */
+			if ((entry->d_name[0] == '.' && entry->d_name[1] == '\0') ||
+				(entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == '\0'))
+			{
+				continue;
+			}
+
+			/* Skip hidden files when -1 is used */
+			if (option_one && entry->d_name[0] == '.')
+			{
+				continue;
+			}
+
+			/* Always print one entry per line, regardless of option_one */
+			printf("%s\n", entry->d_name);
+		}
 		closedir(dir);
 	}
 	else
