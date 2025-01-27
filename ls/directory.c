@@ -36,8 +36,7 @@ void print_directory_contents(const char *directory, int option_one)
 		while ((entry = readdir(dir)) != NULL)
 		{
 			/* Skip "." and ".." entries */
-			if ((entry->d_name[0] == '.' && entry->d_name[1] == '\0') ||
-				(entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == '\0'))
+			if (option_one && entry->d_name[0] == '.' && entry->d_name[1] != '\0')
 			{
 				continue;
 			}
