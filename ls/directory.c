@@ -29,7 +29,7 @@ void print_directory_contents(const char *directory, int option_one)
 		}
 	}
 }
-}
+
 
 int open_directory(const char *directory, DIR **dir)
 {
