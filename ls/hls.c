@@ -155,7 +155,6 @@ int main(int argc, const char *argv[])
 			if (argv[i][0] == '-' && (argv[i][1] != '1' || argv[i][2] != '\0'))
 			{
 				print_err(argv[0], argv[i]); /* Print an error for invalid options */
-				continue;
 			}
 
 			/* Count valid directory arguments */
