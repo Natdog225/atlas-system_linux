@@ -101,7 +101,7 @@ int longlistfmt_init(longlistfmt_t *longlist, const char *entry_name,
 
 void longlistfmt_print(longlistfmt_t *longlist)
 {
-	printf("%s %lu %s %s %-4lu %.12s %s\n", longlist->mode, longlist->nlinks,
+	printf("%s %hu %s %s %-4lld %.12s %s\n", longlist->mode, longlist->nlinks,
 		   longlist->user, longlist->group, longlist->size,
 		   longlist->modified + 4, longlist->entry_name);
 }
@@ -140,26 +140,41 @@ void print_err(const char *program, const char *path)
 int main(int argc, const char *argv[])
 {
 	struct stat sb;
+	int option_one = 0;
 
-	if (argc == 1)
+	for (int i = 1; i < argc; i++)
 	{
-		print_directory_contents("."); /* List current directory */
+		if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+		{
+			option_one = 1;
+		}
+	}
+
+	if (argc == 1 || (argc == 2 && option_one))
+	{ /* Check for -1 option with no path */
+		print_directory_contents(".", option_one);
 	}
 	else
 	{
 		for (int i = 1; i < argc; i++)
 		{
+			/* Skip option arguments ONLY if it's the -1 option */
+			if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+			{
+				continue;
+			}
+
 			if (lstat(argv[i], &sb) == 0)
 			{
 				if (S_ISDIR(sb.st_mode))
 				{
 					if (argc > 2)
-					{
+					{ /* Print directory name if multiple arguments */
 						printf("%s:\n", argv[i]);
 					}
-					print_directory_contents(argv[i]);
+					print_directory_contents(argv[i], option_one);
 					if (argc > 2 && i < argc - 1)
-					{
+					{ /* Add extra newline if needed */
 						printf("\n");
 					}
 				}

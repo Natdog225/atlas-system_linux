@@ -20,9 +20,9 @@ typedef struct longlistfmt
     const char *entry_name;
 } longlistfmt_t;
 
-void print_directory_contents(const char *directory);
+void print_directory_contents(const char *directory, int option_one);
 int open_directory(const char *directory, DIR **dir);
-void read_directory_entries(DIR *dir);
+void read_directory_entries(DIR *dir, int option_one);
 void print_err(const char *program, const char *path);
 void if_path(const char *path, const char *program);
 

@@ -3,13 +3,13 @@
 #include <string.h>
 #include "hls.h"
 
-void print_directory_contents(const char *directory)
+void print_directory_contents(const char *directory, int option_one)
 {
 	DIR *dir;
 
 	if (open_directory(directory, &dir) == 0)
 	{
-		read_directory_entries(dir);
+		read_directory_entries(dir, option_one);
 		closedir(dir);
 	}
 }
@@ -25,18 +25,28 @@ int open_directory(const char *directory, DIR **dir)
 	return 0;
 }
 
-void read_directory_entries(DIR *dir)
-{
+void read_directory_entries(DIR *dir, int option_one)
+{ /* Add option_one parameter */
 	struct dirent *entry;
+
 	while ((entry = readdir(dir)) != NULL)
 	{
-		/* Skip "." and ".." entries */
 		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 		{
 			continue;
 		}
 
-		printf("%s ", entry->d_name);
+		if (option_one)
+		{
+			printf("%s\n", entry->d_name); /* Print one entry per line */
+		}
+		else
+		{
+			printf("%s ", entry->d_name); /* Print space-separated */
+		}
 	}
-	printf("\n");
+	if (!option_one)
+	{
+		printf("\n"); /* Add newline if not -1 option */
+	}
 }
