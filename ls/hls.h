@@ -10,4 +10,4 @@ void read_directory_entries(DIR *dir);
 void print_err(const char *program, const char *path, const char *error_mess);
 void if_path(const char *path, const char *program);
 
-#endif HLS_H
+#endif /* HLS_H */
