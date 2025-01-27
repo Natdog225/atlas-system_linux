@@ -17,7 +17,7 @@ int main(int argc, const char *argv[])
 
 	if (argc == 1)
 	{
-		print_directory_contents("");
+		print_directory_contents("."); /* List current directory */
 	}
 	else
 	{
@@ -25,18 +25,21 @@ int main(int argc, const char *argv[])
 		{
 			if (lstat(argv[i], &sb) == 0)
 			{
-				/* Print the directory name only if there are multiple arguments */
-				/* or if it is a directory */
-				/* added but still wrong. need seperate conditions */
-				/* print_directory_contents(argv[i]); */
-				if (argc > 2)
-				{ /* ||  (argc == 2 && S_ISDIR(sb.st_mode))) { */
-					printf("%s:\n", argv[i]);
-				}
-				if_path(argv[i], argv[0]);
-				if (argc > 2 && i < argc - 1)
+				if (S_ISDIR(sb.st_mode))
 				{
-					printf("\n");
+					if (argc > 2)
+					{
+						printf("%s:\n", argv[i]);
+					}
+					print_directory_contents(argv[i]);
+					if (argc > 2 && i < argc - 1)
+					{
+						printf("\n");
+					}
+				}
+				else
+				{
+					/*handle files - code here to print file information */
 				}
 			}
 			else

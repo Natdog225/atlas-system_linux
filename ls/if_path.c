@@ -7,6 +7,7 @@
 void if_path(const char *path, const char *program)
 {
 	struct stat sb;
+
 	if (lstat(path, &sb) == 0)
 	{
 		if (S_ISDIR(sb.st_mode))
