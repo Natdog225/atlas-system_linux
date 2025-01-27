@@ -120,11 +120,6 @@ void print_long_format(struct stat *sb, const char *name)
 	}
 }
 
-void print_err(const char *program, const char *path)
-{
-	fprintf(stderr, "%s: cannot access %s: ", program, path);
-	perror(NULL);
-}
 
 void print_file_info(const char *path)
 {
