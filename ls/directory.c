@@ -25,10 +25,10 @@ void print_directory_contents(const char *directory, int option_one)
 				continue;
 			}
 
-			printf("%s ", entry->d_name); /* Print space-separated */
+			printf("%s\n", entry->d_name); /* Print each item on a new line */
 		}
-		printf("\n"); /* Add newline if not -1 option */
 	}
+}
 }
 
 int open_directory(const char *directory, DIR **dir)
