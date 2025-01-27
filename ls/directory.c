@@ -61,7 +61,7 @@ void read_directory_entries(DIR *dir, int option_one)
 		}
 
 		/* Skip hidden files when -1 is used */
-		if (option_one && entry->d_name[0] == '.')
+		if (option_one && entry->d_name[0] == '.' && entry->d_name[1] != '\0')
 		{
 			continue;
 		}
