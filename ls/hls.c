@@ -7,8 +7,8 @@
 
 void print_err(const char *program, const char *path)
 {
-	fprintf(stderr, "%s: cannot access %s: %s\n", program, path, error_mess);
-	perror ("");
+	fprintf(stderr, "%s: cannot access %s: %s\n", program, path);
+	perror("");
 }
 
 int main(int argc, const char *argv[])
