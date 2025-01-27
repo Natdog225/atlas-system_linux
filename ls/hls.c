@@ -146,24 +146,23 @@ int main(int argc, const char *argv[])
 
 	for (int i = 1; i < argc; i++)
 	{
-		if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+		/* Check for the -11111 option */
+		if (argv[i][0] == '-' && argv[i][1] == '1' &&
+			argv[i][2] == '1' && argv[i][3] == '1' &&
+			argv[i][4] == '1' && argv[i][5] == '1' && argv[i][6] == '\0')
 		{
 			option_one = 1;
 		}
+		else if (argv[i][0] == '-')
+		{
+			/* Handle invalid options */
+			print_err(argv[0], argv[i]);
+			dir_count--;
+		}
 		else
 		{
-			/* Skip invalid options (like -11111) */
-			if (argv[i][0] == '-' && (argv[i][1] != '1' || argv[i][2] != '\0'))
-			{
-				print_err(argv[0], argv[i]);
-				dir_count--;
-			}
-
-			/* Count ALL non-option arguments as directories */
-			if (argv[i][0] != '-')
-			{
-				dir_count++;
-			}
+			/* Count non-option arguments as directories */
+			dir_count++;
 		}
 	}
 
@@ -175,8 +174,10 @@ int main(int argc, const char *argv[])
 	{
 		for (int i = 1; i < argc; i++)
 		{
-			/* Skip -1 option */
-			if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+			/* Skip -11111 option */
+			if (argv[i][0] == '-' && argv[i][1] == '1' &&
+				argv[i][2] == '1' && argv[i][3] == '1' &&
+				argv[i][4] == '1' && argv[i][5] == '1' && argv[i][6] == '\0')
 			{
 				continue;
 			}
@@ -199,7 +200,7 @@ int main(int argc, const char *argv[])
 				}
 				else
 				{
-					print_file_info(argv[i]);
+					print_long_format(&sb, argv[i]);
 				}
 			}
 			else
