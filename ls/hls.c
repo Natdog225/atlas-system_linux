@@ -5,9 +5,10 @@
 #include <string.h>
 #include "hls.h"
 
-void print_err(const char *program, const char *path, const char *error_mess)
+void print_err(const char *program, const char *path)
 {
 	fprintf(stderr, "%s: cannot access %s: %s\n", program, path, error_mess);
+	perror ("");
 }
 
 int main(int argc, const char *argv[])
@@ -40,7 +41,7 @@ int main(int argc, const char *argv[])
 			}
 			else
 			{
-				print_err(argv[0], argv[i], strerror(errno));
+				print_err(argv[0], argv[i];
 			}
 		}
 	}
