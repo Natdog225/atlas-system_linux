@@ -189,17 +189,20 @@ int main(int argc, const char *argv[])
 						printf("%s:\n", argv[i]);
 					}
 					print_directory_contents(argv[i], option_one);
+					if (dir_count > 1 && i < argc - 1)
+					{
+						printf("\n");
+					}
+					else
+					{
+						print_file_info(argv[i]);
+					}
 				}
 				else
 				{
-					print_file_info(argv[i]);
+					print_err(argv[0], argv[i]);
 				}
 			}
-			else
-			{
-				print_err(argv[0], argv[i]);
-			}
 		}
+		return (0);
 	}
-	return (0);
-}
