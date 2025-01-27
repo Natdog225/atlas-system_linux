@@ -40,15 +40,3 @@ void read_directory_entries(DIR *dir)
 	}
 	printf("\n");
 }
-void print_file_info(const char *path)
-{
-	struct stat sb;
-	if (lstat(path, &sb) == -1)
-	{
-		print_err("./hls_02", path); /* Use program name "./hls_02" */
-		return;
-	}
-
-	/* Print file information in the required format */
-	printf("%s\n", path); /* This just prints the filename for now */
-}

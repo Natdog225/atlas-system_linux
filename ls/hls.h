@@ -25,7 +25,6 @@ int open_directory(const char *directory, DIR **dir);
 void read_directory_entries(DIR *dir);
 void print_err(const char *program, const char *path);
 void if_path(const char *path, const char *program);
-void print_file_info(const char *path);
 
 const char *dirent_type_name(unsigned char d_type);
 const char *path_join(const char *dirpath, const char *entry_name);

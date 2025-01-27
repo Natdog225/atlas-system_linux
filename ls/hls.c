@@ -120,7 +120,6 @@ void print_long_format(struct stat *sb, const char *name)
 	}
 }
 
-
 void print_file_info(const char *path)
 {
 	struct stat sb;
