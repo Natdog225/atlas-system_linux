@@ -160,7 +160,7 @@ int main(int argc, const char *argv[])
 		{
 			hidden = 1;
 		}
-		else if (argv[i] == '-' && argv[i] == 'A' && argv[i] == '\0')
+		else if (argv[i][0] == '-' && argv[i][1] == 'A' && argv[i][2] == '\0')
 		{
 			option_A = 1;
 		}
