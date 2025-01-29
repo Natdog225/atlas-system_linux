@@ -1,39 +1,78 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <string.h>
+#include <stdlib.h>
 #include "hls.h"
 
+int scan_sort(const struct dirent **a, const struct dirent **b)
+{
+	return strcasecmp((*a)->d_name, (*b)->d_name);
+}
+
+int quick_sort(const void *a, const void *b)
+{
+	const struct dirent *dir_a = *(const struct dirent **)a;
+	const struct dirent *dir_b = *(const struct dirent **)b;
+
+	/* case insensitive */
+	return strcasecmp(dir_a->d_name, dir_b->d_name);
+}
 /* Prints the contents of a directory. */
-void print_directory_contents(const char *directory, int option_one)
+void print_directory_contents(const char *path, int option_one, int hidden)
 {
 	DIR *dir;
 	struct dirent *entry;
+	struct dirent **sort_name;
+	int n;
 
-	if (open_directory(directory, &dir) == 0)
+	if ((dir = opendir(path)) == NULL)
 	{
-		while ((entry = readdir(dir)) != NULL)
+		print_err("./hls_03", path);
+		return;
+	}
+	n = scandir(path, &sort_name, NULL, scan_sort);
+	if (n < 0)
+	{
+		perror("scandir");
+		return;
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		entry = sort_name[i];
+
+		if (!hidden && entry->d_name[0] == '.' && entry->d_name[1] != '\0')
 		{
-			/* Skip "." and ".." entries */
-			if ((entry->d_name[0] == '.' && entry->d_name[1] == '\0') ||
-				(entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == '\0'))
-			{
-				continue;
-			}
-
-			/* Skip hidden files when -1 is used */
-			if (option_one && entry->d_name[0] == '.')
-			{
-				continue;
-			}
-
-			printf("%s\n", entry->d_name); /* Print one entry per line */
+			free(entry);
+			continue;
 		}
-		closedir(dir);
+
+		if (option_one || !hidden)
+		{
+			printf("%s\n", entry->d_name);
+		}
+		else
+		{
+			struct stat sb;
+			const char *entry_path = path_join(path, entry->d_name);
+			if (lstat(entry_path, &sb) == -1)
+			{
+				print_err("./hls_02", entry_path);
+			}
+			print_long_format(&sb, entry->d_name);
+		}
+
+		free(entry);
 	}
-	else
-	{
-		print_err("./hls_02", directory);
-	}
+
+	// qsort(sort_name, n, sizeof(struct dirent*), quick_sort);
+	// for (int i = 0; i < n; i++)
+	// {
+	//     printf("%s\n", sort_name[i]->d_name);
+	// }
+
+	free(sort_name);
+	closedir(dir);
 }
 
 /* Opens a directory. */
@@ -42,7 +81,7 @@ int open_directory(const char *directory, DIR **dir)
 	*dir = opendir(directory);
 	if (*dir == NULL)
 	{
-		perror("./hls_01: cannot open directory");
+		perror("./hls_03: cannot open directory");
 		return -1;
 	}
 	return 0;

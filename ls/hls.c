@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -142,7 +143,11 @@ int main(int argc, const char *argv[])
 {
 	struct stat sb;
 	int option_one = 0;
+	int hidden = 0; // hidden files
 	int dir_count = 0;
+	int file_count = 0;
+	char **files = malloc(argc * sizeof(char *));
+	char **dirs = malloc(argc * sizeof(char *));
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -150,63 +155,61 @@ int main(int argc, const char *argv[])
 		{
 			option_one = 1;
 		}
+		else if (argv[i][0] == '-' && argv[i][1] == 'a' && argv[i][2] == '\0')
+		{
+			hidden = 1;
+		}
 		else
 		{
-			/* Skip invalid options (like -11111) */
-			if (argv[i][0] == '-' && (argv[i][1] != '1' || argv[i][2] != '\0'))
+			if (argv[i][0] == '-' && ((argv[i][1] != '1' && argv[i][1] != 'a') || argv[i][2] != '\0'))
 			{
 				print_err(argv[0], argv[i]);
-				dir_count--;
 			}
-
-			/* Count ALL non-option arguments as directories */
-			if (argv[i][0] != '-')
+			else if (argv[i][0] != '-')
 			{
-				dir_count++;
-			}
-		}
-	}
-
-	if (argc == 1 || (argc == 2 && option_one))
-	{
-		print_directory_contents(".", option_one);
-	}
-	else
-	{
-		for (int i = 1; i < argc; i++)
-		{
-			/* Skip -1 option */
-			if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
-			{
-				continue;
-			}
-
-			if (lstat(argv[i], &sb) == 0)
-			{
-				if (S_ISDIR(sb.st_mode))
+				if (lstat(argv[i], &sb) == 0)
 				{
-					/* Print directory name if multiple directories */
-					if (dir_count > 1)
+					if (S_ISDIR(sb.st_mode))
 					{
-						printf("%s:\n", argv[i]);
+						dirs[dir_count++] = (char *)argv[i];
 					}
-					print_directory_contents(argv[i], option_one);
-					/* Print newline between directories */
-					if (dir_count > 1 && i < argc - 1)
+					else
 					{
-						printf("\n");
+						files[file_count++] = (char *)argv[i];
 					}
 				}
 				else
 				{
-					print_file_info(argv[i]);
+					print_err(argv[0], argv[i]);
 				}
-			}
-			else
-			{
-				print_err(argv[0], argv[i]);
 			}
 		}
 	}
+
+	for (int i = 0; i < file_count; i++)
+	{
+		print_file_info(files[i]);
+	}
+
+	for (int i = 0; i < dir_count; i++)
+	{
+		if (dir_count > 1)
+		{
+			printf("%s:\n", dirs[i]);
+		}
+		print_directory_contents(argv[i], option_one, hidden);
+		/* Print newline between directories */
+		if (dir_count > 1 && i < dir_count - 1)
+		{
+			printf("\n");
+		}
+	}
+
+	for (int i = 0; i < dir_count; i++)
+	{
+		if_path(dirs[i], argv[0], hidden);
+	}
+	free(files);
+	free(dirs);
 	return (0);
 }
