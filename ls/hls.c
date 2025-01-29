@@ -148,6 +148,7 @@ int main(int argc, const char *argv[])
 	int file_count = 0;
 	char **files = malloc(argc * sizeof(char *));
 	char **dirs = malloc(argc * sizeof(char *));
+	int option_A = 0;
 
 	for (int i = 1; i < argc; i++)
 	{

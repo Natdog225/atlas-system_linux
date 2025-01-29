@@ -30,7 +30,7 @@ struct node
 	struct node *next;
 };
 
-void print_directory_contents(const char *directory, int option_one, int hidden);
+void print_directory_contents(const char *directory, int option_one, int hidden, int option_A);
 int custom_sort(const void *a, const void *b);
 int open_directory(const char *directory, DIR **dir);
 void read_directory_entries(DIR *dir, int option_one);
