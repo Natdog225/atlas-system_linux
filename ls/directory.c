@@ -89,7 +89,7 @@ int open_directory(const char *directory, DIR **dir)
 	*dir = opendir(directory);
 	if (*dir == NULL)
 	{
-		perror("Failed to open directory: ");
+		perror(directory);
 		return -1;
 	}
 	return 0;
