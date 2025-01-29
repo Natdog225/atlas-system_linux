@@ -12,11 +12,14 @@
 #include "hls.h"
 
 static char PATH_BUF[PATH_MAX];
-static char PERMS_ALPHAMAP[3] = {'r', 'w', 'x'};
-static char FTYPE_ALPHAMAP[16] = {
+static char PERMS_ALPHAMAP = {'r', 'w', 'x'};
+static char FTYPE_ALPHAMAP = {
 	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
 	'?'};
 
+/*
+ * Returns a string representation of the file type.
+ */
 const char *dirent_type_name(unsigned char d_type)
 {
 	switch (d_type)
@@ -40,6 +43,9 @@ const char *dirent_type_name(unsigned char d_type)
 	}
 }
 
+/*
+ * Concatenates two path components.
+ */
 const char *path_join(const char *dirpath, const char *entry_name)
 {
 	char *dest = PATH_BUF;
@@ -61,6 +67,9 @@ const char *path_join(const char *dirpath, const char *entry_name)
 	return PATH_BUF;
 }
 
+/*
+ * Converts file mode to a string representation.
+ */
 int mode_to_str(char *buf, mode_t mode)
 {
 	mode_t pmask, i;
@@ -77,6 +86,9 @@ int mode_to_str(char *buf, mode_t mode)
 	return (0);
 }
 
+/*
+ * Initializes a longlistfmt_t struct.
+ */
 int longlistfmt_init(longlistfmt_t *longlist, const char *entry_name,
 					 struct stat *statbuf)
 {
@@ -100,6 +112,9 @@ int longlistfmt_init(longlistfmt_t *longlist, const char *entry_name,
 	return (0);
 }
 
+/*
+ * Prints the contents of a longlistfmt_t struct.
+ */
 void longlistfmt_print(longlistfmt_t *longlist)
 {
 	printf("%s %lu %s %s %-4ld %.12s %s\n", longlist->mode, longlist->nlinks,
@@ -107,14 +122,16 @@ void longlistfmt_print(longlistfmt_t *longlist)
 		   longlist->modified + 4, longlist->entry_name);
 }
 
+/*
+ * Prints file information in long format.
+ */
 void print_long_format(struct stat *sb, const char *name)
 {
 	longlistfmt_t longlist;
 
 	if (longlistfmt_init(&longlist, name, sb) == 0)
 	{
-		/* Only print the entry name for now */
-		printf("%s\n", longlist.entry_name);
+		longlistfmt_print(&longlist);
 	}
 	else
 	{
@@ -122,6 +139,9 @@ void print_long_format(struct stat *sb, const char *name)
 	}
 }
 
+/*
+ * Prints file information.
+ */
 void print_file_info(const char *path)
 {
 	struct stat sb;
@@ -133,45 +153,62 @@ void print_file_info(const char *path)
 
 	print_long_format(&sb, path);
 }
+
+/*
+ * Prints an error message.
+ */
 void print_err(const char *program, const char *path)
 {
 	fprintf(stderr, "%s: cannot access %s: ", program, path);
 	perror(NULL);
 }
 
-int main(int argc, const char *argv[])
+/*
+ * Main function.
+ */
+int main(int argc, const char *argv)
 {
 	struct stat sb;
 	int option_one = 0;
 	int hidden = 0;
+	int option_A = 0;
+	int option_l = 0;
 	int dir_count = 0;
 	int file_count = 0;
-	int option_A = 0;
 	char **files = malloc(argc * sizeof(char *));
 	char **dirs = malloc(argc * sizeof(char *));
 
+	if (files == NULL || dirs == NULL)
+	{
+		fprintf(stderr, "Memory allocation failed\n");
+		exit(1);
+	}
 
 	for (int i = 1; i < argc; i++)
 	{
-		if (argv[i][0] == '-' && argv[i][1] == '1' && argv[i][2] == '\0')
+		if (argv[i] == '-' && argv[i] == '1' && argv[i] == '\0')
 		{
 			option_one = 1;
 		}
-		else if (argv[i][0] == '-' && argv[i][1] == 'a' && argv[i][2] == '\0')
+		else if (argv[i] == '-' && argv[i] == 'a' && argv[i] == '\0')
 		{
 			hidden = 1;
 		}
-		else if (argv[i][0] == '-' && argv[i][1] == 'A' && argv[i][2] == '\0')
+		else if (argv[i] == '-' && argv[i] == 'A' && argv[i] == '\0')
 		{
 			option_A = 1;
 		}
+		else if (argv[i] == '-' && argv[i] == 'l' && argv[i] == '\0')
+		{
+			option_l = 1;
+		}
 		else
 		{
-			if (argv[i][0] == '-' && ((argv[i][1] != '1' && argv[i][1] != 'a') || argv[i][2] != '\0'))
+			if (argv[i] == '-' && ((argv[i] != '1' && argv[i] != 'a' && argv[i] != 'A') || argv[i] != '\0'))
 			{
-				print_err(argv[0], argv[i]);
+				print_err(argv, argv[i]);
 			}
-			else if (argv[i][0] != '-')
+			else if (argv[i] != '-')
 			{
 				if (lstat(argv[i], &sb) == 0)
 				{
@@ -186,24 +223,26 @@ int main(int argc, const char *argv[])
 				}
 				else
 				{
-					print_err(argv[0], argv[i]);
+					print_err(argv, argv[i]);
 				}
 			}
 		}
 	}
 
+	/* Print files first */
 	for (int i = 0; i < file_count; i++)
 	{
 		print_file_info(files[i]);
 	}
 
+	/* Print directories */
 	for (int i = 0; i < dir_count; i++)
 	{
 		if (dir_count > 1)
 		{
 			printf("%s:\n", dirs[i]);
 		}
-		print_directory_contents(argv[i], option_one, hidden, option_A);
+		print_directory_contents(dirs[i], option_one, hidden, option_A, option_l);
 		/* Print newline between directories */
 		if (dir_count > 1 && i < dir_count - 1)
 		{
@@ -211,10 +250,6 @@ int main(int argc, const char *argv[])
 		}
 	}
 
-	for (int i = 0; i < dir_count; i++)
-	{
-		if_path(dirs[i], argv[0], hidden);
-	}
 	free(files);
 	free(dirs);
 	return (0);

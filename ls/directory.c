@@ -18,7 +18,7 @@ int quick_sort(const void *a, const void *b)
 	return strcasecmp(dir_a->d_name, dir_b->d_name);
 }
 /* Prints the contents of a directory. */
-void print_directory_contents(const char *path, int option_one, int hidden, int option_A)
+void print_directory_contents(const char *path, int option_one, int hidden, int option_A, int option_l)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -41,7 +41,8 @@ void print_directory_contents(const char *path, int option_one, int hidden, int 
 	{
 		entry = sort_name[i];
 
-		if (!entry) {
+		if (!entry)
+		{
 			continue;
 		}
 
@@ -49,10 +50,27 @@ void print_directory_contents(const char *path, int option_one, int hidden, int 
 			/* Skip "." and ".." when -A is used */
 			(option_A &&
 			 ((*entry->d_name == '.' && *(entry->d_name + 1) == '\0') ||
-				 (*entry->d_name == '.' && *(entry->d_name + 2) == '\0' && *(entry->d_name + 3) == '\0'))))
+			  (*entry->d_name == '.' && *(entry->d_name + 2) == '\0' && *(entry->d_name + 3) == '\0'))))
 		{
 			free(entry);
 			continue;
+		}
+		if (option_l)
+		{ /* Check if -l option is active */
+			struct stat sb;
+			const char *entry_path = path_join(path, entry->d_name);
+			if (lstat(entry_path, &sb) == -1)
+			{
+				print_err("./hls_04", entry_path);
+			}
+			else
+			{
+				print_long_format(&sb, entry->d_name);
+			}
+		}
+		else
+		{
+			printf("%s\n", entry->d_name); /* Otherwise, just print the entry name */
 		}
 
 		if (option_one || !hidden)
