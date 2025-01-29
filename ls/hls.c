@@ -168,7 +168,7 @@ void print_err(const char *program, const char *path)
 /*
  * Main function.
  */
-int main(int argc, char *argv) // Corrected signature
+int main(int argc, char *argv)
 {
 	struct stat sb;
 	int option_one = 0;
@@ -211,10 +211,9 @@ int main(int argc, char *argv) // Corrected signature
 		}
 		else
 		{
-			/* Handle invalid options */
 			if (argv[i] == '-' && ((argv[i] != '1' && argv[i] != 'a' && argv[i] != 'A' && argv[i] != 'l') || argv[i] != '\0'))
 			{
-				print_err(argv, argv[i]); /* Print an error for invalid options */
+				print_err(argv, argv[i]);
 			}
 			else if (argv[i] != '-')
 			{
@@ -222,16 +221,16 @@ int main(int argc, char *argv) // Corrected signature
 				{
 					if (S_ISDIR(sb.st_mode))
 					{
-						dirs[dir_count++] = argv[i]; // No cast needed
+						dirs[dir_count++] = argv[i];
 					}
 					else
 					{
-						files[file_count++] = argv[i]; // No cast needed
+						files[file_count++] = argv[i];
 					}
 				}
 				else
 				{
-					print_err(argv, argv[i]); /* Print an error for invalid paths */
+					print_err(argv, argv[i]);
 				}
 			}
 		}
