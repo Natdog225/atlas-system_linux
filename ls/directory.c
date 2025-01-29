@@ -27,7 +27,7 @@ void print_directory_contents(const char *path, int option_one, int hidden, int 
 
 	if ((dir = opendir(path)) == NULL)
 	{
-		print_err("./hls_03", path);
+		print_err("./hls_04", path);
 		return;
 	}
 	n = scandir(path, &sort_name, NULL, scan_sort);
@@ -65,7 +65,7 @@ void print_directory_contents(const char *path, int option_one, int hidden, int 
 			const char *entry_path = path_join(path, entry->d_name);
 			if (lstat(entry_path, &sb) == -1)
 			{
-				print_err("./hls_02", entry_path);
+				print_err("./hls_04", entry_path);
 			}
 			print_long_format(&sb, entry->d_name);
 		}
@@ -89,7 +89,7 @@ int open_directory(const char *directory, DIR **dir)
 	*dir = opendir(directory);
 	if (*dir == NULL)
 	{
-		perror("./hls_03: cannot open directory");
+		perror("./hls_04: cannot open directory");
 		return -1;
 	}
 	return 0;
