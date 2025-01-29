@@ -41,7 +41,7 @@ void print_directory_contents(const char *path, int option_one, int hidden, int 
 	{
 		entry = sort_name[i];
 
-		if ((!hidden && !option_A && option_one && entry->d_name == '.') ||
+		if ((!hidden && !option_A && option_one && *entry->d_name == '.') ||
 			/* Skip "." and ".." when -A is used */
 			(option_A &&
 			 ((*entry->d_name == '.' && entry->d_name == '\0') ||

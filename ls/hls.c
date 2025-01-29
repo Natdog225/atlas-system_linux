@@ -202,7 +202,7 @@ int main(int argc, const char *argv[])
 		{
 			printf("%s:\n", dirs[i]);
 		}
-		print_directory_contents(argv[i], option_one, hidden);
+		print_directory_contents(argv[i], option_one, hidden, option_A);
 		/* Print newline between directories */
 		if (dir_count > 1 && i < dir_count - 1)
 		{
