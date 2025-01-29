@@ -18,7 +18,7 @@ int quick_sort(const void *a, const void *b)
 	return strcasecmp(dir_a->d_name, dir_b->d_name);
 }
 /* Prints the contents of a directory. */
-void print_directory_contents(const char *path, int option_one, int hidden)
+void print_directory_contents(const char *path, int option_one, int hidden, int option_A)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -41,7 +41,11 @@ void print_directory_contents(const char *path, int option_one, int hidden)
 	{
 		entry = sort_name[i];
 
-		if (!hidden && entry->d_name[0] == '.' && entry->d_name[1] != '\0')
+		if ((!hidden && !option_A && option_one && entry->d_name == '.') ||
+			/* Skip "." and ".." when -A is used */
+			(option_A &&
+			 ((entry->d_name == '.' && entry->d_name == '\0') ||
+			  (entry->d_name == '.' && entry->d_name == '.' && entry->d_name == '\0'))))
 		{
 			free(entry);
 			continue;
