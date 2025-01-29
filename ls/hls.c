@@ -127,7 +127,7 @@ void print_file_info(const char *path)
 	struct stat sb;
 	if (lstat(path, &sb) == -1)
 	{
-		print_err("./hls_02", path);
+		print_err("./hls_04", path);
 		return;
 	}
 
@@ -143,12 +143,13 @@ int main(int argc, const char *argv[])
 {
 	struct stat sb;
 	int option_one = 0;
-	int hidden = 0; // hidden files
+	int hidden = 0;
 	int dir_count = 0;
 	int file_count = 0;
+	int option_A = 0;
 	char **files = malloc(argc * sizeof(char *));
 	char **dirs = malloc(argc * sizeof(char *));
-	int option_A = 0;
+
 
 	for (int i = 1; i < argc; i++)
 	{
