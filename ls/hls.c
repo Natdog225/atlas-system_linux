@@ -168,7 +168,7 @@ void print_err(const char *program, const char *path)
 /*
  * Main function.
  */
-int main(int argc, char *argv) // Corrected signature
+int main(int argc, char *argv)
 {
 	struct stat sb;
 	int option_one = 0;
@@ -222,11 +222,11 @@ int main(int argc, char *argv) // Corrected signature
 				{
 					if (S_ISDIR(sb.st_mode))
 					{
-						dirs[dir_count++] = argv[i]; // No cast needed
+						dirs[dir_count++] = argv[i];
 					}
 					else
 					{
-						files[file_count++] = argv[i]; // No cast needed
+						files[file_count++] = argv[i];
 					}
 				}
 				else
@@ -250,7 +250,7 @@ int main(int argc, char *argv) // Corrected signature
 		{
 			printf("%s:\n", dirs[i]);
 		}
-		print_directory_contents(dirs[i], option_one, hidden, option_A, option_l); // Pass option_l
+		print_directory_contents(dirs[i], option_one, hidden, option_A, option_l);
 		/* Print newline between directories */
 		if (dir_count > 1 && i < dir_count - 1)
 		{
