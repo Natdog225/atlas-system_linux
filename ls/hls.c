@@ -17,8 +17,7 @@ static char FTYPE_ALPHAMAP[] = {
 	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
 	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
 	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
-	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?'
-};
+	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?'};
 
 /*
  * Returns a string representation of the file type.
@@ -169,7 +168,7 @@ void print_err(const char *program, const char *path)
 /*
  * Main function.
  */
-int main(int argc, const char *argv)
+int main(int argc, char *argv) // Corrected signature
 {
 	struct stat sb;
 	int option_one = 0;
@@ -223,11 +222,11 @@ int main(int argc, const char *argv)
 				{
 					if (S_ISDIR(sb.st_mode))
 					{
-						dirs[dir_count++] = (char *)argv[i];
+						dirs[dir_count++] = argv[i]; // No cast needed
 					}
 					else
 					{
-						files[file_count++] = (char *)argv[i];
+						files[file_count++] = argv[i]; // No cast needed
 					}
 				}
 				else
@@ -251,7 +250,7 @@ int main(int argc, const char *argv)
 		{
 			printf("%s:\n", dirs[i]);
 		}
-		print_directory_contents(dirs[i], option_one, hidden, option_A, option_l);
+		print_directory_contents(dirs[i], option_one, hidden, option_A, option_l); // Pass option_l
 		/* Print newline between directories */
 		if (dir_count > 1 && i < dir_count - 1)
 		{
