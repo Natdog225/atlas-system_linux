@@ -89,7 +89,7 @@ int open_directory(const char *directory, DIR **dir)
 	*dir = opendir(directory);
 	if (*dir == NULL)
 	{
-		perror("./hls_04: cannot open directory");
+		perror("Failed to open directory: ");
 		return -1;
 	}
 	return 0;
