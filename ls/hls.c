@@ -184,29 +184,35 @@ int main(int argc, const char *argv)
 		exit(1);
 	}
 
+	/* Parse command line options */
 	for (int i = 1; i < argc; i++)
 	{
+		/* Check for -1 option */
 		if (argv[i] == '-' && argv[i] == '1' && argv[i] == '\0')
 		{
 			option_one = 1;
 		}
+		/* Check for -a option */
 		else if (argv[i] == '-' && argv[i] == 'a' && argv[i] == '\0')
 		{
 			hidden = 1;
 		}
+		/* Check for -A option */
 		else if (argv[i] == '-' && argv[i] == 'A' && argv[i] == '\0')
 		{
 			option_A = 1;
 		}
+		/* Check for -l option */
 		else if (argv[i] == '-' && argv[i] == 'l' && argv[i] == '\0')
 		{
 			option_l = 1;
 		}
 		else
 		{
-			if (argv[i] == '-' && ((argv[i] != '1' && argv[i] != 'a' && argv[i] != 'A') || argv[i] != '\0'))
+			/* Handle invalid options */
+			if (argv[i] == '-' && ((argv[i] != '1' && argv[i] != 'a' && argv[i] != 'A' && argv[i] != 'l') || argv[i] != '\0'))
 			{
-				print_err(argv, argv[i]);
+				print_err(argv, argv[i]); /* Print an error for invalid options */
 			}
 			else if (argv[i] != '-')
 			{
@@ -223,7 +229,7 @@ int main(int argc, const char *argv)
 				}
 				else
 				{
-					print_err(argv, argv[i]);
+					print_err(argv, argv[i]); /* Print an error for invalid paths */
 				}
 			}
 		}
