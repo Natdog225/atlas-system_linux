@@ -15,7 +15,8 @@ static char PATH_BUF[PATH_MAX];
 static char PERMS_ALPHAMAP = {'r', 'w', 'x'};
 static char FTYPE_ALPHAMAP = {
 	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
-	'?'};
+	'?'
+	};
 
 /*
  * Returns a string representation of the file type.
