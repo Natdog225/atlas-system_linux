@@ -12,12 +12,10 @@
 #include "hls.h"
 
 static char PATH_BUF[PATH_MAX];
-static char PERMS_ALPHAMAP[] = {'r', 'w', 'x'};
-static char FTYPE_ALPHAMAP[] = {
+static char PERMS_ALPHAMAP = {'r', 'w', 'x'};
+static char FTYPE_ALPHAMAP = {
 	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
-	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
-	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?',
-	'?', 'p', 'c', '?', 'd', '?', 'b', '?', '-', '?', 'l', '?', 's', '?', '?'};
+	'?'};
 
 /*
  * Returns a string representation of the file type.
@@ -168,7 +166,7 @@ void print_err(const char *program, const char *path)
 /*
  * Main function.
  */
-int main(int argc, char **argv)
+int main(int argc, char *argv)
 {
 	struct stat sb;
 	int option_one = 0;
