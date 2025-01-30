@@ -168,7 +168,7 @@ void print_err(const char *program, const char *path)
 /*
  * Main function.
  */
-int main(int argc, char **argv)
+int main(int argc, char *argv)
 {
 	struct stat sb;
 	int option_one = 0;
