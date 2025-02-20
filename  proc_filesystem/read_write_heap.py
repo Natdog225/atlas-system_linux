@@ -1,108 +1,103 @@
-#!/usr/bin/env python3
-"""
-Script to find and replace a string in the heap of a running process.
+#!/usr/bin/python3
 
-Usage: read_write_heap.py pid search_string replace_strig
+"""
+python
+
+replace_string_in_heap.py: A Python script to find and replace a
+    string in the heap memory of a running process using ptrace and ctypes.
+
+Usage:
+    python replace_string_in_heap.py <pid>
+
+Arguments:
+    <pid>          The process ID of the target process.
+
+Example:
+    python replace_string_in_heap.py 1234
+
+Modules:
+    os      The os module provides a way of using operating
+            system-dependent functionality.
+    sys     The sys module provides access to some variables used or
+            maintained by the interpreter.
+    ctypes  The ctypes module provides C compatible data types
+            and allows calling functions in DLLs or shared libraries.
+
 """
 
-import sys
 import os
+import sys
+import ctypes
+
+# ptrace will send a specific tracee using one of these
+PTRACE_ATTACH = 16
+PTRACE_DETACH = 17
+
+libc = ctypes.CDLL("libc.so.6")
 
 
-def read_write_heap(pid, search_string, replace_string):
-    """
-    Finds and replaces a string in the heap of a running process.
+# pid will thread ID of the corresponding Linux thread
+def attach(pid):
+    # print(f"Attaching to PID {pid}")
+    if libc.ptrace(PTRACE_ATTACH, pid, None, None) == -1:
+        sys.exit(1)
+    os.waitpid(pid, 0)
+    # print("Attached successfully")
 
-    Args:
-        pid: The process ID.
-        search_string: The string to search for.
-        replace_string: The string to replace it with.
-    """
 
-    try:
-        pid = int(pid)
-        if pid <= 0:
-            raise ValueError("PID must be a positive integer.")
-    except ValueError as e:
-        print(f"Error: Invalid PID: {e}", file=sys.stderr)
+def detach(pid):
+    # print(f"Detaching from PID {pid}")
+    if libc.ptrace(PTRACE_DETACH, pid, None, None) == -1:
+        sys.exit(1)
+    # print("Detached successfully")
+
+
+def find_and_replace_string(pid, search_string, replace_string):
+    mem_path = f"/proc/{pid}/mem"
+    maps_path = f"/proc/{pid}/maps"
+
+    heap_found = False
+    with open(maps_path, "r") as maps_file:
+        for line in maps_file:
+            # print(line.strip())
+            if "heap" in line:
+                addr_range = line.split()[0]
+                start, end = [int(x, 16) for x in addr_range.split("-")]
+                heap_found = True
+                break
+
+    if not heap_found:
+        print("Error: Heap not found")
         sys.exit(1)
 
-    maps_file_path = f"/proc/{pid}/maps"
-    mem_file_path = f"/proc/{pid}/mem"
+    with open(mem_path, "rb+") as mem_file:
+        mem_file.seek(start)
+        heap_data = mem_file.read(end - start)
 
-    try:
-        with open(maps_file_path, "r") as maps_file:
-            for line in maps_file:
-                if "[heap]" in line:
-                    heap_info = line.split()
-                    # Format: start-end perms offset dev inode pathname
-                    # Example: 00400000-00452000 rw-p 00000000 00:00 0  [heap]
-                    address_range = heap_info[0].split("-")
-                    start_address = int(address_range[0], 16)
-                    end_address = int(address_range[1], 16)
-                    permissions = heap_info[1]
+        offset = heap_data.find(search_string.encode())
+        if offset == -1:
+            print(f"'{search_string}' not found in heap")
+            return
 
-                    if 'r' not in permissions or 'w' not in permissions:
-                        print(f"Heap is not readable and/or writable. Permissions: {permissions}")
-                        return
-
-                    # Found the heap, now read and modify
-                    with open(mem_file_path, "rb+") as mem_file:
-                        try:
-                            mem_file.seek(start_address)
-                            heap_data = mem_file.read(end_address - start_address)
-                        except OSError as e:
-                            print(f"Error seeking or reading memory: {e}", file=sys.stderr)
-                            sys.exit(1)
-
-                        # Encode strings to bytes
-                        search_bytes = search_string.encode('ascii')
-                        replace_bytes = replace_string.encode('ascii')
-
-                        # Check and handle different lengths
-                        if len(replace_bytes) > len(search_bytes):
-                             print(f"Error: Replacement string is longer than search string, and might cause memory corruption", file=sys.stderr)
-                             sys.exit(1)
-                        
-                        # Pad replacement string with null bytes if it's shorter
-                        if len(replace_bytes) < len(search_bytes):
-                            replace_bytes += b'\x00' * (len(search_bytes) - len(replace_bytes))
-                            
-                         # Find the string and replace
-                        index = heap_data.find(search_bytes)
-                        if index != -1:
-                            mem_file.seek(start_address + index)
-                            mem_file.write(replace_bytes)
-                            print(f"String '{search_string}' found and replaced with '{replace_string}' at heap address {hex(start_address + index)}")
-                            return
-                        else:
-                            print(f"String '{search_string}' not found in heap.")
-                            return
-            print(f"Heap not found for PID {pid}.")
-
-
-    except FileNotFoundError:
-        print(f"Error: Process with PID {pid} not found or /proc/{pid}/maps does not exist.", file=sys.stderr)
-        sys.exit(1)
-    except PermissionError:
-        print(f"Error: Permission denied.  You may need root privileges to access /proc/{pid}/mem.", file=sys.stderr)
-        sys.exit(1)
-    except OSError as e:
-         print(f"Error: An OS error occurred: {e}", file=sys.stderr)
-         sys.exit(1)
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}", file=sys.stderr)
-        sys.exit(1)
-
+        mem_file.seek(start + offset)
+        mem_file.write(replace_string.encode()
+                       + b'\x00' * (len(search_string) - len(replace_string)))
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: read_write_heap.py pid search_string replace_string", file=sys.stderr)
+        print("Usage: read_write_heap.py pid search_string replace_string")
         sys.exit(1)
 
-    pid = sys.argv[1]
+    pid = int(sys.argv[1])
     search_string = sys.argv[2]
     replace_string = sys.argv[3]
 
-    read_write_heap(pid, search_string, replace_string)
+    if not search_string.isascii() or not replace_string.isascii():
+        print("Error: Strings must be ascii")
+        sys.exit(1)
+    try:
+        attach(pid)
+        find_and_replace_string(pid, search_string, replace_string)
+    finally:
+        detach(pid)
