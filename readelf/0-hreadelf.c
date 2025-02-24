@@ -187,7 +187,6 @@ int main(int argc, char *argv[])
 
 	/* Check for ELF magic number. *before* casting. */
 	unsigned char *magic = (unsigned char *)file_data;
-	printf("Raw OS/ABI value: %u\n", magic[EI_OSABI]);
 	if (magic[EI_MAG0] != ELFMAG0 || magic[EI_MAG1] != ELFMAG1 ||
 		magic[EI_MAG2] != ELFMAG2 || magic[EI_MAG3] != ELFMAG3)
 	{
