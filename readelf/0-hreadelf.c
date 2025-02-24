@@ -7,8 +7,8 @@
 #include <sys/mman.h>
 #include <string.h>
 
-// Function to get the OS/ABI string
-const char *get_osabi_string(unsigned char osabi)
+/* Function to get the OS/ABI string */
+const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
 {
 	switch (osabi)
 	{
@@ -33,12 +33,12 @@ const char *get_osabi_string(unsigned char osabi)
 	case ELFOSABI_STANDALONE:
 		return "Standalone App";
 	default:
-	snprintf(buffer, buf_size, "<unknown: %u>", osabi); 
-	return buffer;
+		snprintf(buffer, buf_size, "<unknown: %u>", osabi);
+		return buffer;
 	}
 }
 
-/* Function to get the ELF type string */
+/* Function to get the ELF type string (works for both 32-bit and 64-bit) */
 const char *get_elf_type_string(unsigned short type)
 {
 	switch (type)
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 		exit(98);
 	}
 
-	// Check for ELF magic number *before* casting.
+	/* Check for ELF magic number. *before* casting. */
 	unsigned char *magic = (unsigned char *)file_data;
 	if (magic[EI_MAG0] != ELFMAG0 || magic[EI_MAG1] != ELFMAG1 ||
 		magic[EI_MAG2] != ELFMAG2 || magic[EI_MAG3] != ELFMAG3)
@@ -194,9 +194,9 @@ int main(int argc, char *argv[])
 		exit(98);
 	}
 
-	// Determine if it's 32-bit or 64-bit.
+
 	int is_64bit = (magic[EI_CLASS] == ELFCLASS64);
-	char osabi_buffer[32];
+	char osabi_buffer[32]; /* Buffer for the <unknown: XX> */
 
 	printf("ELF Header:\n");
 	printf("  Magic:   %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \n",
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 		printf("  Class:                             ELF64\n");
 		printf("  Data:                              %s\n", ehdr->e_ident[EI_DATA] == ELFDATA2LSB ? "2's complement, little endian" : "2's complement, big endian");
 		printf("  Version:                           %d (current)\n", ehdr->e_ident[EI_VERSION]);
-		printf("  OS/ABI:                            %s\n",get_osabi_string(ehdr->e_ident[EI_OSABI], osabi_buffer, sizeof(osabi_buffer)));
+		printf("  OS/ABI:                            %s\n", get_osabi_string(ehdr->e_ident[EI_OSABI], osabi_buffer, sizeof(osabi_buffer)));
 		printf("  ABI Version:                       %d\n", ehdr->e_ident[EI_ABIVERSION]);
 		printf("  Type:                              %s\n", get_elf_type_string(ehdr->e_type));
 		printf("  Machine:                           %s\n", get_machine_string(ehdr->e_machine));
