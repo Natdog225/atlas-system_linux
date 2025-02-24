@@ -28,12 +28,12 @@ const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
 		return "UNIX - FreeBSD";
 	case ELFOSABI_TRU64:
 		return "UNIX - TRU64";
-	case 53:
-		return "UNIX - GNU";
 	case ELFOSABI_ARM:
 		return "ARM";
 	case ELFOSABI_STANDALONE:
 		return "Standalone App";
+	case 53:
+		return "UNIX - GNU";
 	default:
 		snprintf(buffer, buf_size, "<unknown: %u>", osabi);
 		return buffer;
