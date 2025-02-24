@@ -29,7 +29,7 @@ import os
 import sys
 import ctypes
 
-# ptrace will send a specific tracee using one of these
+# ptrace will send a specific trace using one of these
 PTRACE_ATTACH = 16
 PTRACE_DETACH = 17
 
@@ -49,7 +49,6 @@ def detach(pid):
     # print(f"Detaching from PID {pid}")
     if libc.ptrace(PTRACE_DETACH, pid, None, None) == -1:
         sys.exit(1)
-    # print("Detached successfully")
 
 
 def find_and_replace_string(pid, search_string, replace_string):
