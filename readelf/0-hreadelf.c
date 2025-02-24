@@ -28,6 +28,8 @@ const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
 		return "UNIX - FreeBSD";
 	case ELFOSABI_TRU64:
 		return "UNIX - TRU64";
+	case 53:
+		return "UNIX - GNU";
 	case ELFOSABI_ARM:
 		return "ARM";
 	case ELFOSABI_STANDALONE:
@@ -193,7 +195,6 @@ int main(int argc, char *argv[])
 		close(fd);
 		exit(98);
 	}
-
 
 	int is_64bit = (magic[EI_CLASS] == ELFCLASS64);
 	char osabi_buffer[32]; /* Buffer for the <unknown: XX> */
