@@ -226,21 +226,6 @@ int main(int argc, char *argv[])
 	else
 		ehdr.ehdr32 = (Elf32_Ehdr *)file_data;
 
-	union
-	{
-		const Elf64_Addr *addr64;
-		const Elf32_Addr *addr32;
-	} entry_ptr, phoff_ptr, shoff_ptr;
-
-	entry_ptr.addr64 = is_64bit ? &ehdr.ehdr64->e_entry : NULL;
-	entry_ptr.addr32 = is_64bit ? NULL : &ehdr.ehdr32->e_entry;
-
-	phoff_ptr.addr64 = is_64bit ? &ehdr.ehdr64->e_phoff : NULL;
-	phoff_ptr.addr32 = is_64bit ? NULL : &ehdr.ehdr32->e_phoff;
-
-	shoff_ptr.addr64 = is_64bit ? &ehdr.ehdr64->e_shoff : NULL;
-	shoff_ptr.addr32 = is_64bit ? NULL : &ehdr.ehdr32->e_shoff;
-
 	printf("ELF Header:\n");
 	printf("  Magic:   %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \n",
 		   magic[0], magic[1], magic[2], magic[3], magic[4], magic[5], magic[6], magic[7],
@@ -257,9 +242,9 @@ int main(int argc, char *argv[])
 	// Read values with proper endianness
 	uint16_t e_type = read16(is_64bit ? &ehdr.ehdr64->e_type : &ehdr.ehdr32->e_type, is_big_endian);
 	uint16_t e_machine = read16(is_64bit ? &ehdr.ehdr64->e_machine : &ehdr.ehdr32->e_machine, is_big_endian);
-	uint32_t e_entry = read32(entry_ptr, is_big_endian);
-	uint32_t e_phoff = read32(phoff_ptr, is_big_endian);
-	uint32_t e_shoff = read32(shoff_ptr, is_big_endian);
+	uint32_t e_entry = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_entry : (const void *)&ehdr.ehdr32->e_entry, is_big_endian);
+	uint32_t e_phoff = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_phoff : (const void *)&ehdr.ehdr32->e_phoff, is_big_endian);
+	uint32_t e_shoff = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_shoff : (const void *)&ehdr.ehdr32->e_shoff, is_big_endian);
 
 	printf("  Type:                              %s\n", get_elf_type_string(e_type));
 	printf("  Machine:                           %s\n", get_machine_string(e_machine));
