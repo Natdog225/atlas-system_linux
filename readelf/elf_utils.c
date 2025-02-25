@@ -1,6 +1,5 @@
 #include "elf_utils.h"
-#include <stdio.h>
-#include <stdint.h>
+
 
 /**
  * get_osabi_string - Returns the OS/ABI string.

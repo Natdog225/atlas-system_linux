@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <elf.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <stdint.h>
-#include "elf_utils.h" // Include the header file
+#include "elf_utils.h"
 
 /**
  * print_magic - Prints the magic number of the ELF header.

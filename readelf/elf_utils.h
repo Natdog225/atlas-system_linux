@@ -1,8 +1,16 @@
 #ifndef ELF_UTILS_H
 #define ELF_UTILS_H
 
-#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <elf.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <string.h>
+#include <stdint.h>
+#include <stddef.h>
 
 /**
  * @brief Union representing both 32-bit and 64-bit ELF headers
