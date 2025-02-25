@@ -248,6 +248,7 @@ int main(int argc, char *argv[])
 	uint16_t e_shnum = read16(is_64bit ? &ehdr.ehdr64->e_shnum : &ehdr.ehdr32->e_shnum, is_big_endian);
 	uint16_t e_shstrndx = read16(is_64bit ? &ehdr.ehdr64->e_shstrndx : &ehdr.ehdr32->e_shstrndx, is_big_endian);
 	uint16_t e_phnum = read16(is_64bit ? &ehdr.ehdr64->e_phnum : &ehdr.ehdr32->e_phnum, is_big_endian);
+	uint16_t e_phentsize = read16(is_64bit ? &ehdr.ehdr64->e_phentsize : &ehdr.ehdr32->e_phentsize, is_big_endian);
 
 	printf("  Type:                              %s\n", get_elf_type_string(e_type));
 	printf("  Machine:                           %s\n", get_machine_string(e_machine));
@@ -257,7 +258,7 @@ int main(int argc, char *argv[])
 	printf("  Start of section headers:          %d (bytes into file)\n", e_shoff);
 	printf("  Flags:                             0x0\n");
 	printf("  Size of this header:               %d (bytes)\n", is_64bit ? 64 : 52);
-	printf("  Size of program headers:           %d (bytes)\n", is_64bit ? 56 : 32);
+	printf("  Size of program headers:           %d (bytes)\n", e_phnum > 0 ? e_phentsize : 0);
 	printf("  Number of program headers:         %d\n", e_phnum);
 	printf("  Size of section headers:           %d (bytes)\n", is_64bit ? 64 : 40);
 	printf("  Number of section headers:         %d\n", e_shnum);
