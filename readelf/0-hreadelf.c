@@ -213,6 +213,9 @@ int main(int argc, char *argv[])
 	int is_big_endian = (magic[EI_DATA] == ELFDATA2MSB);
 	int is_64bit = (magic[EI_CLASS] == ELFCLASS64);
 	char osabi_buffer[32];
+	const void *entry_ptr = is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry;
+	const void *phoff_ptr = is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff;
+	const void *shoff_ptr = is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff;
 
 	// Declare ehdr here, before use
 	union
@@ -242,9 +245,9 @@ int main(int argc, char *argv[])
 	// Read values with proper endianness
 	uint16_t e_type = read16(is_64bit ? &ehdr.ehdr64->e_type : &ehdr.ehdr32->e_type, is_big_endian);
 	uint16_t e_machine = read16(is_64bit ? &ehdr.ehdr64->e_machine : &ehdr.ehdr32->e_machine, is_big_endian);
-	uint32_t e_entry = read32((const void *)(is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry), is_big_endian);
-	uint32_t e_phoff = read32((const void *)(is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff), is_big_endian);
-	uint32_t e_shoff = read32((const void *)(is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff), is_big_endian);
+	uint32_t e_entry = read32(entry_ptr, is_big_endian);
+	uint32_t e_phoff = read32(phoff_ptr, is_big_endian);
+	uint32_t e_shoff = read32(shoff_ptr, is_big_endian);
 
 	printf("  Type:                              %s\n", get_elf_type_string(e_type));
 	printf("  Machine:                           %s\n", get_machine_string(e_machine));
