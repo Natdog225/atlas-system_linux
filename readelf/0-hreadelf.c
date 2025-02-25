@@ -33,7 +33,8 @@ const char *get_osabi_string(unsigned char osabi)
 	case ELFOSABI_STANDALONE:
 		return "Standalone App";
 	default:
-		return "<unknown>"; // Simplified
+		snprintf(buffer, buf_size, "<unknown: %u>", osabi); // Use %u for DECIMAL output
+		return buffer;
 	}
 }
 
@@ -53,7 +54,8 @@ const char *get_elf_type_string(unsigned short type)
 	case ET_CORE:
 		return "CORE (Core file)";
 	default:
-		return "<unknown>";
+		snprintf(buffer, buf_size, "<unknown: %u>", osabi);
+		return buffer;
 	}
 }
 
