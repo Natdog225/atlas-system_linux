@@ -213,9 +213,6 @@ int main(int argc, char *argv[])
 	int is_big_endian = (magic[EI_DATA] == ELFDATA2MSB);
 	int is_64bit = (magic[EI_CLASS] == ELFCLASS64);
 	char osabi_buffer[32];
-	const void *entry_ptr = is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry;
-	const void *phoff_ptr = is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff;
-	const void *shoff_ptr = is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff;
 
 	// Declare ehdr here, before use
 	union
@@ -228,6 +225,10 @@ int main(int argc, char *argv[])
 		ehdr.ehdr64 = (Elf64_Ehdr *)file_data;
 	else
 		ehdr.ehdr32 = (Elf32_Ehdr *)file_data;
+
+	const void *entry_ptr = is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry;
+	const void *phoff_ptr = is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff;
+	const void *shoff_ptr = is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff;
 
 	printf("ELF Header:\n");
 	printf("  Magic:   %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \n",
