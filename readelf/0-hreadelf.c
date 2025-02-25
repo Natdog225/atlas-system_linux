@@ -7,11 +7,16 @@
 #include <sys/mman.h>
 #include <string.h>
 
-// Function to get the OS/ABI string
+/* Function to get the OS/ABI string */
 const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
 {
-	switch (osabi)
+	// Convert the raw byte value to decimal for consistent handling
+	unsigned int osabi_dec = (unsigned int)osabi;
+
+	switch (osabi_dec)
 	{
+	case 83: // 0x53 in hex
+		return "UNIX - GNU";
 	case ELFOSABI_SYSV:
 		return "UNIX - System V";
 	case ELFOSABI_HPUX:
@@ -33,7 +38,7 @@ const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
 	case ELFOSABI_STANDALONE:
 		return "Standalone App";
 	default:
-		snprintf(buffer, buf_size, "<unknown: %u>", osabi);
+		snprintf(buffer, buf_size, "<unknown: %u>", osabi_dec);
 		return buffer;
 	}
 }
