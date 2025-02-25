@@ -164,8 +164,8 @@ uint16_t read16(const void *data, int big_endian)
 uint32_t read32(const void *data, int big_endian)
 {
 	const uint8_t *bytes = (const uint8_t *)data;
-	return big_endian ? (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3] : // Big-endian
-			   (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];		   // Little-endian
+	return big_endian ? (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3] : /* Big-endian */
+			   (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];		   /* Little-endian */
 }
 
 int main(int argc, char *argv[])
@@ -242,9 +242,9 @@ int main(int argc, char *argv[])
 	// Read values with proper endianness
 	uint16_t e_type = read16(is_64bit ? &ehdr.ehdr64->e_type : &ehdr.ehdr32->e_type, is_big_endian);
 	uint16_t e_machine = read16(is_64bit ? &ehdr.ehdr64->e_machine : &ehdr.ehdr32->e_machine, is_big_endian);
-	uint32_t e_entry = read32(is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry, is_big_endian);
-	uint32_t e_phoff = read32(is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff, is_big_endian);
-	uint32_t e_shoff = read32(is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff, is_big_endian);
+	uint32_t e_entry = read32((const void *)(is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry), is_big_endian);
+	uint32_t e_phoff = read32((const void *)(is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff), is_big_endian);
+	uint32_t e_shoff = read32((const void *)(is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff), is_big_endian);
 
 	printf("  Type:                              %s\n", get_elf_type_string(e_type));
 	printf("  Machine:                           %s\n", get_machine_string(e_machine));
