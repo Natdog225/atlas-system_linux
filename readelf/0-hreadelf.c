@@ -226,9 +226,20 @@ int main(int argc, char *argv[])
 	else
 		ehdr.ehdr32 = (Elf32_Ehdr *)file_data;
 
-	const void *entry_ptr = is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry;
-	const void *phoff_ptr = is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff;
-	const void *shoff_ptr = is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff;
+	union
+	{
+		const Elf64_Addr *addr64;
+		const Elf32_Addr *addr32;
+	} entry_ptr, phoff_ptr, shoff_ptr;
+
+	entry_ptr.addr64 = is_64bit ? &ehdr.ehdr64->e_entry : NULL;
+	entry_ptr.addr32 = is_64bit ? NULL : &ehdr.ehdr32->e_entry;
+
+	phoff_ptr.addr64 = is_64bit ? &ehdr.ehdr64->e_phoff : NULL;
+	phoff_ptr.addr32 = is_64bit ? NULL : &ehdr.ehdr32->e_phoff;
+
+	shoff_ptr.addr64 = is_64bit ? &ehdr.ehdr64->e_shoff : NULL;
+	shoff_ptr.addr32 = is_64bit ? NULL : &ehdr.ehdr32->e_shoff;
 
 	printf("ELF Header:\n");
 	printf("  Magic:   %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \n",
