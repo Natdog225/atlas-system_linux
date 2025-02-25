@@ -167,6 +167,12 @@ int main(int argc, char *argv[])
 		perror("Error: Can't open file");
 		exit(98);
 	}
+	unsigned short machine = (ehdr->e_machine);
+	if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
+	{
+		// Byte-swap for big-endian
+		machine = ((machine & 0xFF00) >> 8) | ((machine & 0x00FF) << 8);
+	}
 
 	struct stat st;
 	if (fstat(fd, &st) == -1)
