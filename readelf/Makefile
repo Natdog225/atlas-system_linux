@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra -pedantic
 TARGET = 0-hreadelf
-SRCS = 0-hreadelf.c  # Add other .c files here if you have them
+SRCS = 0-hreadelf.c
 
 all: $(TARGET)
 
