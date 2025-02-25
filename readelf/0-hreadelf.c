@@ -259,8 +259,8 @@ int main(int argc, char *argv[])
 	printf("  Size of program headers:           %d (bytes)\n", is_64bit ? 56 : 32);
 	printf("  Number of program headers:         %d\n", is_64bit ? 6 : 6);
 	printf("  Size of section headers:           %d (bytes)\n", is_64bit ? 64 : 40);
-	printf("  Number of section headers:         %d\n", is_64bit ? 24 : 24);
-	printf("  Section header string table index: %d\n", is_64bit ? 23 : 23);
+	printf("  Number of section headers:         %d\n", e_shnum);
+	printf("  Section header string table index: %d\n", e_shstrndx);
 
 	munmap(file_data, st.st_size);
 	close(fd);
