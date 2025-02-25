@@ -247,6 +247,7 @@ int main(int argc, char *argv[])
 	uint32_t e_shoff = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_shoff : (const void *)&ehdr.ehdr32->e_shoff, is_big_endian);
 	uint16_t e_shnum = read16(is_64bit ? &ehdr.ehdr64->e_shnum : &ehdr.ehdr32->e_shnum, is_big_endian);
 	uint16_t e_shstrndx = read16(is_64bit ? &ehdr.ehdr64->e_shstrndx : &ehdr.ehdr32->e_shstrndx, is_big_endian);
+	uint16_t e_phnum = read16(is_64bit ? &ehdr.ehdr64->e_phnum : &ehdr.ehdr32->e_phnum, is_big_endian);
 
 	printf("  Type:                              %s\n", get_elf_type_string(e_type));
 	printf("  Machine:                           %s\n", get_machine_string(e_machine));
