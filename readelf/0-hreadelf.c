@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
 	printf("  Flags:                             0x0\n");
 	printf("  Size of this header:               %d (bytes)\n", is_64bit ? 64 : 52);
 	printf("  Size of program headers:           %d (bytes)\n", is_64bit ? 56 : 32);
-	printf("  Number of program headers:         %d\n", is_64bit ? 6 : 6);
+	printf("  Number of program headers:         %d\n", e_phnum);
 	printf("  Size of section headers:           %d (bytes)\n", is_64bit ? 64 : 40);
 	printf("  Number of section headers:         %d\n", e_shnum);
 	printf("  Section header string table index: %d\n", e_shstrndx);
