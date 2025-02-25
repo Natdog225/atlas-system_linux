@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 	/* Check for ELF magic number. *before* casting. */
 	magic = (unsigned char *)file_data;
 	if (magic[EI_MAG0] != ELFMAG0 || magic[EI_MAG1] != ELFMAG1 ||
-		magic[EI_MAG2] != ELFMAG2] || magic[EI_MAG3] != ELFMAG3)
+		magic[EI_MAG2] != ELFMAG2 || magic[EI_MAG3] != ELFMAG3)
 	{
 		fprintf(stderr, "Error: Not an ELF file - it has the wrong magic bytes at the start\n");
 		munmap(file_data, st.st_size);
@@ -277,16 +277,17 @@ int main(int argc, char *argv[])
 	/* Read values with proper endianness */
 	uint16_t e_type = read16(is_64bit ? &ehdr.ehdr64->e_type : &ehdr.ehdr32->e_type, is_big_endian);
 	uint16_t e_machine = read16(is_64bit ? &ehdr.ehdr64->e_machine : &ehdr.ehdr32->e_machine, is_big_endian);
+	uint32_t e_version = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_version : (const void *)&ehdr.ehdr32->e_version, is_big_endian);
 	uint32_t e_entry = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_entry : (const void *)&ehdr.ehdr32->e_entry, is_big_endian);
 	uint32_t e_phoff = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_phoff : (const void *)&ehdr.ehdr32->e_phoff, is_big_endian);
 	uint32_t e_shoff = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_shoff : (const void *)&ehdr.ehdr32->e_shoff, is_big_endian);
-	uint16_t e_shnum = read16(is_64bit ? &ehdr.ehdr64->e_shnum : &ehdr.ehdr32->e_shnum, is_big_endian);
-	uint16_t e_shstrndx = read16(is_64bit ? &ehdr.ehdr64->e_shstrndx : &ehdr.ehdr32->e_shstrndx, is_big_endian);
-	uint16_t e_phnum = read16(is_64bit ? &ehdr.ehdr64->e_phnum : &ehdr.ehdr32->e_phnum, is_big_endian);
-	uint16_t e_phentsize = read16(is_64bit ? &ehdr.ehdr64->e_phentsize : &ehdr.ehdr32->e_phentsize, is_big_endian);
 	uint32_t e_flags = read32(is_64bit ? (const void *)&ehdr.ehdr64->e_flags : (const void *)&ehdr.ehdr32->e_flags, is_big_endian);
 	uint16_t e_ehsize = read16(is_64bit ? &ehdr.ehdr64->e_ehsize : &ehdr.ehdr32->e_ehsize, is_big_endian);
+	uint16_t e_phentsize = read16(is_64bit ? &ehdr.ehdr64->e_phentsize : &ehdr.ehdr32->e_phentsize, is_big_endian);
+	uint16_t e_phnum = read16(is_64bit ? &ehdr.ehdr64->e_phnum : &ehdr.ehdr32->e_phnum, is_big_endian);
 	uint16_t e_shentsize = read16(is_64bit ? &ehdr.ehdr64->e_shentsize : &ehdr.ehdr32->e_shentsize, is_big_endian);
+	uint16_t e_shnum = read16(is_64bit ? &ehdr.ehdr64->e_shnum : &ehdr.ehdr32->e_shnum, is_big_endian);
+	uint16_t e_shstrndx = read16(is_64bit ? &ehdr.ehdr64->e_shstrndx : &ehdr.ehdr32->e_shstrndx, is_big_endian);
 
 	printf("  Type:                              %s\n", get_elf_type_string(e_type));
 	printf("  Machine:                           %s\n", get_machine_string(e_machine));
