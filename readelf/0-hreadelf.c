@@ -16,7 +16,7 @@ const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
 	switch (osabi_dec)
 	{
 	case 83: // 0x53 in hex
-		return "UNIX - GNU";
+		return "<unknown: %u>";
 	case ELFOSABI_SYSV:
 		return "UNIX - System V";
 	case ELFOSABI_HPUX:
