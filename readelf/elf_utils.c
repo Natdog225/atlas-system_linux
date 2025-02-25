@@ -34,8 +34,7 @@ const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
 	case ELFOSABI_STANDALONE:
 		return ("Standalone App");
 	default:
-		/* Use the raw byte value directly */
-		snprintf(buffer, buf_size, "<unknown: %u>", osabi);
+		snprintf(buffer, buf_size, "<unknown: %x>", osabi);
 		return (buffer);
 	}
 }
