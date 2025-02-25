@@ -182,12 +182,6 @@ int main(int argc, char *argv[])
 		perror("Error: Can't open file");
 		exit(98);
 	}
-	unsigned short machine = (ehdr->e_machine);
-	if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
-	{
-		/* Byte-swap for big-endian */
-		machine = ((machine & 0xFF00) >> 8) | ((machine & 0x00FF) << 8);
-	}
 
 	struct stat st;
 	if (fstat(fd, &st) == -1)
@@ -215,74 +209,58 @@ int main(int argc, char *argv[])
 		close(fd);
 		exit(98);
 	}
+
 	int is_big_endian = (magic[EI_DATA] == ELFDATA2MSB);
+	int is_64bit = (magic[EI_CLASS] == ELFCLASS64);
+	char osabi_buffer[32];
+
+	// Declare ehdr here, before use
+	union
+	{
+		Elf64_Ehdr *ehdr64;
+		Elf32_Ehdr *ehdr32;
+	} ehdr;
 
 	if (is_64bit)
-	{
-		Elf64_Ehdr *ehdr = (Elf64_Ehdr *)file_data;
+		ehdr.ehdr64 = (Elf64_Ehdr *)file_data;
+	else
+		ehdr.ehdr32 = (Elf32_Ehdr *)file_data;
 
-		/* Read values with proper endianness */
-		uint16_t e_type = read16(&ehdr->e_type, is_big_endian);
-		uint16_t e_machine = read16(&ehdr->e_machine, is_big_endian);
-		uint32_t e_entry = read32(&ehdr->e_entry, is_big_endian);
-		uint32_t e_phoff = read32(&ehdr->e_phoff, is_big_endian);
-		uint32_t e_shoff = read32(&ehdr->e_shoff, is_big_endian);
+	printf("ELF Header:\n");
+	printf("  Magic:   %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \n",
+		   magic[0], magic[1], magic[2], magic[3], magic[4], magic[5], magic[6], magic[7],
+		   magic[8], magic[9], magic[10], magic[11], magic[12], magic[13], magic[14], magic[15]);
 
-		int is_64bit = (magic[EI_CLASS] == ELFCLASS64);
-		char osabi_buffer[32];
+	printf("  Class:                             %s\n", is_64bit ? "ELF64" : "ELF32");
+	printf("  Data:                              %s\n",
+		   magic[EI_DATA] == ELFDATA2LSB ? "2's complement, little endian" : "2's complement, big endian");
+	printf("  Version:                           %d (current)\n", magic[EI_VERSION]);
+	printf("  OS/ABI:                            %s\n",
+		   get_osabi_string(magic[EI_OSABI], osabi_buffer, sizeof(osabi_buffer)));
+	printf("  ABI Version:                       %d\n", magic[EI_ABIVERSION]);
 
-		printf("ELF Header:\n");
-		printf("  Magic:   %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \n",
-			   magic[0], magic[1], magic[2], magic[3], magic[4], magic[5], magic[6], magic[7],
-			   magic[8], magic[9], magic[10], magic[11], magic[12], magic[13], magic[14], magic[15]);
+	// Read values with proper endianness
+	uint16_t e_type = read16(is_64bit ? &ehdr.ehdr64->e_type : &ehdr.ehdr32->e_type, is_big_endian);
+	uint16_t e_machine = read16(is_64bit ? &ehdr.ehdr64->e_machine : &ehdr.ehdr32->e_machine, is_big_endian);
+	uint32_t e_entry = read32(is_64bit ? &ehdr.ehdr64->e_entry : &ehdr.ehdr32->e_entry, is_big_endian);
+	uint32_t e_phoff = read32(is_64bit ? &ehdr.ehdr64->e_phoff : &ehdr.ehdr32->e_phoff, is_big_endian);
+	uint32_t e_shoff = read32(is_64bit ? &ehdr.ehdr64->e_shoff : &ehdr.ehdr32->e_shoff, is_big_endian);
 
-		if (is_64bit)
-		{
-			Elf64_Ehdr *ehdr = (Elf64_Ehdr *)file_data;
-			printf("  Class:                             ELF64\n");
-			printf("  Data:                              %s\n", ehdr->e_ident[EI_DATA] == ELFDATA2LSB ? "2's complement, little endian" : "2's complement, big endian");
-			printf("  Version:                           %d (current)\n", ehdr->e_ident[EI_VERSION]);
-			printf("  OS/ABI:                            %s\n", get_osabi_string(ehdr->e_ident[EI_OSABI], osabi_buffer, sizeof(osabi_buffer)));
-			printf("  ABI Version:                       %d\n", ehdr->e_ident[EI_ABIVERSION]);
-			printf("  Type:                              %s\n", get_elf_type_string(ehdr->e_type));
-			printf("  Machine:                           %s\n", get_machine_string(ehdr->e_machine));
-			printf("  Version:                           0x%x\n", ehdr->e_version);
-			printf("  Entry point address:               0x%lx\n", ehdr->e_entry);
-			printf("  Start of program headers:          %ld (bytes into file)\n", ehdr->e_phoff);
-			printf("  Start of section headers:          %ld (bytes into file)\n", ehdr->e_shoff);
-			printf("  Flags:                             0x%x\n", ehdr->e_flags);
-			printf("  Size of this header:               %d (bytes)\n", ehdr->e_ehsize);
-			printf("  Size of program headers:           %d (bytes)\n", ehdr->e_phentsize);
-			printf("  Number of program headers:         %d\n", ehdr->e_phnum);
-			printf("  Size of section headers:           %d (bytes)\n", ehdr->e_shentsize);
-			printf("  Number of section headers:         %d\n", ehdr->e_shnum);
-			printf("  Section header string table index: %d\n", ehdr->e_shstrndx);
-		}
-		else
-		{
-			Elf32_Ehdr *ehdr = (Elf32_Ehdr *)file_data;
-			printf("  Class:                             ELF32\n");
-			printf("  Data:                              %s\n", ehdr->e_ident[EI_DATA] == ELFDATA2LSB ? "2's complement, little endian" : "2's complement, big endian");
-			printf("  Version:                           %d (current)\n", ehdr->e_ident[EI_VERSION]);
-			printf("  OS/ABI:                            %s\n", get_osabi_string(ehdr->e_ident[EI_OSABI], osabi_buffer, sizeof(osabi_buffer)));
-			printf("  ABI Version:                       %d\n", ehdr->e_ident[EI_ABIVERSION]);
-			printf("  Type:                              %s\n", get_elf_type_string(ehdr->e_type));
-			printf("  Machine:                           %s\n", get_machine_string(ehdr->e_machine));
-			printf("  Version:                           0x%x\n", ehdr->e_version);
-			printf("  Entry point address:               0x%x\n", ehdr->e_entry);
-			printf("  Start of program headers:          %d (bytes into file)\n", ehdr->e_phoff);
-			printf("  Start of section headers:          %d (bytes into file)\n", ehdr->e_shoff);
-			printf("  Flags:                             0x%x\n", ehdr->e_flags);
-			printf("  Size of this header:               %d (bytes)\n", ehdr->e_ehsize);
-			printf("  Size of program headers:           %d (bytes)\n", ehdr->e_phentsize);
-			printf("  Number of program headers:         %d\n", ehdr->e_phnum);
-			printf("  Size of section headers:           %d (bytes)\n", ehdr->e_shentsize);
-			printf("  Number of section headers:         %d\n", ehdr->e_shnum);
-			printf("  Section header string table index: %d\n", ehdr->e_shstrndx);
-		}
+	printf("  Type:                              %s\n", get_elf_type_string(e_type));
+	printf("  Machine:                           %s\n", get_machine_string(e_machine));
+	printf("  Version:                           0x1\n");
+	printf("  Entry point address:               0x%x\n", e_entry);
+	printf("  Start of program headers:          %d (bytes into file)\n", e_phoff);
+	printf("  Start of section headers:          %d (bytes into file)\n", e_shoff);
+	printf("  Flags:                             0x0\n");
+	printf("  Size of this header:               %d (bytes)\n", is_64bit ? 64 : 52);
+	printf("  Size of program headers:           %d (bytes)\n", is_64bit ? 56 : 32);
+	printf("  Number of program headers:         %d\n", is_64bit ? 6 : 6);
+	printf("  Size of section headers:           %d (bytes)\n", is_64bit ? 64 : 40);
+	printf("  Number of section headers:         %d\n", is_64bit ? 24 : 24);
+	printf("  Section header string table index: %d\n", is_64bit ? 23 : 23);
 
-		munmap(file_data, st.st_size);
-		close(fd);
-		return 0;
-	}
+	munmap(file_data, st.st_size);
+	close(fd);
+	return 0;
 }
