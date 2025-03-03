@@ -1,6 +1,5 @@
 #include "elf_utils.h"
 
-
 /**
  * get_osabi_string - Returns the OS/ABI string.
  * @osabi: The OS/ABI byte.
@@ -9,7 +8,8 @@
  *
  * Return: Pointer to the string.
  */
-const char *get_osabi_string(unsigned char osabi, char *buffer, size_t buf_size)
+const char *get_osabi_string(unsigned char osabi, char *buffer,
+							 size_t buf_size)
 {
 	switch (osabi)
 	{
@@ -108,56 +108,56 @@ const char *get_machine_string(unsigned short machine)
 		return ("Fujitsu FR20");
 	case EM_S390:
 		return ("IBM S/390");
-	case EM_SPU:
-		return ("SPU");
-	case EM_V800:
-		return ("Renesas V850");
-	case EM_IA_64:
-		return ("Intel IA-64");
-	case EM_X86_64:
-		return ("Advanced Micro Devices X86-64");
-	case EM_VAX:
-		return ("Digital VAX");
-	case EM_CRIS:
-		return ("Axis Comm. CRIS Architecture");
-	case EM_JAVELIN:
-		return ("Infineon Tech. Javelin Processor");
-	case EM_FIREPATH:
-		return ("Element 14 6500");
-	case EM_ZSP:
-		return ("LSI Logic's 16-bit DSP Processor");
-	case EM_MMIX:
-		return ("Donald Knuth's educational 64-bit proc");
-	case EM_HUANY:
-		return ("Harvard University machine-independent object files");
-	case EM_PRISM:
-		return ("SiTera Prism");
-	case EM_ARM:
-		return ("Advanced RISC Machines ARM");
-	case EM_SH:
-		return ("Renesas SuperH");
-	case EM_SPARCV9:
-		return ("SPARC v9 64-bit");
-	case EM_TRICORE:
-		return ("Siemens Tricore embedded processor");
-	case EM_ARC:
-		return ("Argonaut RISC Core");
-	case EM_H8_300:
-		return ("Renesas H8/300");
-	case EM_H8_300H:
-		return ("Renesas H8/300H");
-	case EM_H8S:
-		return ("Renesas H8S");
-	case EM_H8_500:
-		return ("Renesas H8/500");
-	case EM_AARCH64:
-		return ("ARM aarch64");
-	case EM_TILEPRO:
-		return ("Tilera TILEPro");
-	case EM_MICROBLAZE:
-		return ("Xilinx MicroBlaze");
-	case EM_TILEGX:
-		return ("Tilera TILE-Gx");
+	// case EM_SPU:
+	// 	return ("SPU");
+	// case EM_V800:
+	// 	return ("Renesas V850");
+	// case EM_IA_64:
+	// 	return ("Intel IA-64");
+	// case EM_X86_64:
+	// 	return ("Advanced Micro Devices X86-64");
+	// case EM_VAX:
+	// 	return ("Digital VAX");
+	// case EM_CRIS:
+	// 	return ("Axis Comm. CRIS Architecture");
+	// case EM_JAVELIN:
+	// 	return ("Infineon Tech. Javelin Processor");
+	// case EM_FIREPATH:
+	// 	return ("Element 14 6500");
+	// case EM_ZSP:
+	// 	return ("LSI Logic's 16-bit DSP Processor");
+	// case EM_MMIX:
+	// 	return ("Donald Knuth's educational 64-bit proc");
+	// case EM_HUANY:
+	// 	return ("Harvard University machine-independent object files");
+	// case EM_PRISM:
+	// 	return ("SiTera Prism");
+	// case EM_ARM:
+	// 	return ("Advanced RISC Machines ARM");
+	// case EM_SH:
+	// 	return ("Renesas SuperH");
+	// case EM_SPARCV9:
+	// 	return ("SPARC v9 64-bit");
+	// case EM_TRICORE:
+	// 	return ("Siemens Tricore embedded processor");
+	// case EM_ARC:
+	// 	return ("Argonaut RISC Core");
+	// case EM_H8_300:
+	// 	return ("Renesas H8/300");
+	// case EM_H8_300H:
+	// 	return ("Renesas H8/300H");
+	// case EM_H8S:
+	// 	return ("Renesas H8S");
+	// case EM_H8_500:
+	// 	return ("Renesas H8/500");
+	// case EM_AARCH64:
+	// 	return ("ARM aarch64");
+	// case EM_TILEPRO:
+	// 	return ("Tilera TILEPro");
+	// case EM_MICROBLAZE:
+	// 	return ("Xilinx MicroBlaze");
+	// case EM_TILEGX:
+	// 	return ("Tilera TILE-Gx");
 	default:
 		return ("<unknown>");
 	}
