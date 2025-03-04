@@ -22,6 +22,8 @@ asm_strcmp:
     jmp .loop           ; Continue loop
 
 .diff:
+    xor ah, ah              ; Clear high byte of eax
+    xor bh, bh              ; Clear high byte of ebx
     sub eax, ebx      ; Calculate difference (al - bl)
     ret                 ; Return the difference
 
