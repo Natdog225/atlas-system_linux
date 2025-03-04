@@ -8,8 +8,8 @@ asm_strcmp:
     xor rcx, rcx        ; Initialize index to 0
 
 .loop:
-    mov al, byte [rdi + rcx]  ; Load byte from s1 - MUST use byte
-    mov bl, byte [rsi + rcx]  ; Load byte from s2 - MUST use byte
+    mov al, byte [rdi + rcx]  ; Load byte from s1
+    mov bl, byte [rsi + rcx]  ; Load byte from s2
 
     cmp al, bl         ; Compare characters
     jne .different     ; If different, jump
