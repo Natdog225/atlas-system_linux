@@ -3,44 +3,41 @@
 
 section .text
     global asm_strcmp
-    BITS 64                  ; Specify 64-bit mode
+    BITS 64
 
 asm_strcmp:
-    push rbp                ; Save base pointer
-    mov rbp, rsp           ; Set up frame pointer
-    push rbx               ; Save callee-saved register
-    
-    xor ecx, ecx           ; Initialize counter to 0
-    mov rsi, rsi           ; Second string pointer already in rsi
-    mov rdi, rdi           ; First string pointer already in rdi
+    push rbp
+    mov rbp, rsp
+    ; push rbx      ; Not strictly necessary, as we don't modify rbx
+
+    xor rcx, rcx        ; Initialize counter to 0 (use rcx for 64-bit addressing)
 
 .loop:
-    mov al, byte [rdi + rcx]    ; Load byte from s1
-    mov bl, byte [rsi + rcx]    ; Load byte from s2
+    mov al, byte [rdi + rcx]  ; Load byte from s1
+    mov bl, byte [rsi + rcx]  ; Load byte from s2
 
-    cmp al, bl               ; Compare characters
-    jne .different          ; If different, exit loop
+    cmp al, bl         ; Compare characters
+    jne .different     ; If different, exit loop
 
-    test al, al             ; Check for null terminator
-    je .equal              ; If null, strings are equal
+    test al, al        ; Check for null terminator (both strings)
+    jz .equal          ; If null, strings are equal up to this point
 
-    inc rcx                 ; Move to next character
-    jmp .loop              ; Continue comparison
+    inc rcx             ; Move to next character
+    jmp .loop           ; Continue comparison
 
 .different:
-    xor ah, ah             ; Clear high byte of eax
-    xor bh, bh             ; Clear high byte of ebx
-    movzx eax, al          ; Sign-extend al into eax
-    movzx ebx, bl          ; Sign-extend bl into ebx
-    sub eax, ebx           ; Calculate difference
-    jmp .exit
+    movsx eax, al       ; Sign-extend al into eax
+    movsx ebx, bl       ; Sign-extend bl into ebx
+    sub eax, ebx       ; Calculate difference (eax = al - bl)
+    ; jmp .exit       ; No jmp!  Fall through to ret
+    ret                 ; Return directly.
 
 .equal:
-    xor eax, eax           ; Return 0 for equal strings
-    jmp .exit
+    xor eax, eax        ; Return 0 for equal strings
+    ret                ; Return.
 
-.exit:
-    pop rbx                ; Restore callee-saved register
-    mov rsp, rbp          ; Restore stack pointer
-    pop rbp               ; Restore base pointer
-    ret                   ; Return to caller
+;.exit:                ; Unnecessary label
+;    pop rbx
+;    mov rsp, rbp
+;    pop rbp
+;    ret
