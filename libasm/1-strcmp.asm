@@ -3,6 +3,7 @@
 
 section .text
     global asm_strcmp
+    BITS 64
 
 asm_strcmp:
     xor rcx, rcx        ; Initialize index to 0
