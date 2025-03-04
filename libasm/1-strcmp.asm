@@ -5,13 +5,11 @@ section .text
     global asm_strcmp
 
 asm_strcmp:
-    ; No stack frame needed (no local variables, no calls to other functions)
-
     xor rcx, rcx        ; Initialize index to 0
 
 .loop:
-    mov al, byte [rdi + rcx]  ; Load byte from s1
-    mov bl, byte [rsi + rcx]  ; Load byte from s2
+    mov al, byte [rdi + rcx]  ; Load byte from s1 - MUST use byte
+    mov bl, byte [rsi + rcx]  ; Load byte from s2 - MUST use byte
 
     cmp al, bl         ; Compare characters
     jne .different     ; If different, jump
