@@ -3,41 +3,31 @@
 
 section .text
     global asm_strcmp
-    BITS 64
 
 asm_strcmp:
-    push rbp
-    mov rbp, rsp
-    ; push rbx      ; Not strictly necessary, as we don't modify rbx
+    ; No stack frame needed (no local variables, no calls to other functions)
 
-    xor rcx, rcx        ; Initialize counter to 0 (use rcx for 64-bit addressing)
+    xor rcx, rcx        ; Initialize index to 0
 
 .loop:
     mov al, byte [rdi + rcx]  ; Load byte from s1
     mov bl, byte [rsi + rcx]  ; Load byte from s2
 
     cmp al, bl         ; Compare characters
-    jne .different     ; If different, exit loop
+    jne .different     ; If different, jump
 
-    test al, al        ; Check for null terminator (both strings)
-    jz .equal          ; If null, strings are equal up to this point
+    test al, al        ; Check for null terminator
+    jz .equal          ; If null, strings are equal
 
-    inc rcx             ; Move to next character
-    jmp .loop           ; Continue comparison
+    inc rcx             ; Increment index
+    jmp .loop           ; Continue loop
 
 .different:
     movsx eax, al       ; Sign-extend al into eax
     movsx ebx, bl       ; Sign-extend bl into ebx
-    sub eax, ebx       ; Calculate difference (eax = al - bl)
-    ; jmp .exit       ; No jmp!  Fall through to ret
-    ret                 ; Return directly.
+    sub eax, ebx       ; Calculate difference
+    ret                 ; Return
 
 .equal:
     xor eax, eax        ; Return 0 for equal strings
-    ret                ; Return.
-
-;.exit:                ; Unnecessary label
-;    pop rbx
-;    mov rsp, rbp
-;    pop rbp
-;    ret
+    ret                 ; Return
