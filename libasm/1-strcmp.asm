@@ -3,10 +3,10 @@
 
 section .text
     global asm_strcmp
-    BITS 64                  ; Specify 64-bit mode
+    BITS 64                  ;
 
 asm_strcmp:
-    xor rcx, rcx            ; Initialize counter to 0 (full 64-bit register)
+    xor rcx, rcx            ; Initialize counter to 0
 
 .loop:
     mov al, byte [rdi + rcx]    ; Load byte from s1
