@@ -1,6 +1,3 @@
-; 1-strcmp.asm
-; int asm_strcmp(const char *s1, const char *s2);
-
 section .text
     global asm_strcmp
 
