@@ -30,4 +30,3 @@ asm_strncmp:
 .equal:
     xor eax, eax        ; Set return value to 0 (equal)
     ret
-    
