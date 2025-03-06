@@ -20,21 +20,19 @@ asm_write_char:
 asm_putc:
     push rbp
     mov rbp, rsp
+    sub rsp, 8         ; *** Align the stack to 16 bytes ***
 
     ; Load the character into the buffer (using RIP-relative addressing)
     mov byte [rel char_buffer], dil
 
     ; Prepare arguments for asm_write_char
-    ; We'll be jumping, not calling, so we set up the registers directly
     lea rdi, [rel char_buffer] ;  Pass the buffer address to our helper function
 
     ; Jump to the write function
     jmp asm_write_char        ; Jump to asm_write_char.
 
-    ; The code execution will continue at asm_write_char.
-    ; The return from asm_write_char will come back *here*.
-
     ; rax already contains the return value (bytes written)
+    add rsp, 8         ; *** Restore the stack pointer ***
     mov rsp, rbp
     pop rbp
     ret
