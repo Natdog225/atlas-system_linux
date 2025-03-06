@@ -6,7 +6,7 @@ section .data
 
 section .text
     global asm_putc
-    global asm_write_char  ;write function globally accessible
+    global asm_write_char  ; Make the write function globally accessible
 
 ; This function performs the actual system call.
 asm_write_char:
@@ -33,11 +33,11 @@ asm_putc:
     push rax                 ;push buffer to the stack.
 
     ; Jump to the write function.
-    jmp asm_write_char      ; Jump
+    jmp asm_write_char      ; Jump (NOT call)
 
-    ; Execution continues *here*
+    ; Execution continues *here* after asm_write_char returns.
 
     add rsp, 8             ; Restore stack.
     mov rsp, rbp           ; restore stack pointer
     pop rbp            ; Restore base pointer.
-    ret               ; Return
+    ret               ; Return to C caller.
