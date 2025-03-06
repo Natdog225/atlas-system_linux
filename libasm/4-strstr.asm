@@ -11,14 +11,14 @@ asm_strstr:
     mov rbp, rsp
 
     mov rdi, rsi     ; Put the address of 'needle' in rdi (for asm_strlen)
-    call asm_strlen ; get the length of needle.
+    call asm_strlen  ; get the length of needle.
     test rax, rax   ; check if needle length is 0.
     jz .empty_needle ; Jump if zero.
 
     ; --- Setup ---
-    mov rdx, rax ; store the length of needle to rdx.
-    mov rsi, [rbp + 16] ; restore rsi to the correct address
-    mov r8, rdi  ; save the hay pointer, before it changes.
+    mov rdx, rax        ; store the length of needle to rdx.
+    mov rsi, [rbp + 24] ; Restore rsi (needle pointer)
+    mov r8, rdi         ; save the hay pointer, before it changes.
 
 .outer_loop:
     mov cl, byte [rdi]   ; Load a byte from haystack
@@ -31,10 +31,10 @@ asm_strstr:
     ; --- Potential match: Inner loop ---
     push rdi            ; Save haystack pointer
     push rsi            ; Save needle pointer
-    push rcx       ;Save outer loop counter
-    push rdx          ;Save needle len
-    
-    mov rcx, 1      ; start at 1 since we already know first char matches.
+    push rcx            ; Save outer loop counter
+    push rdx            ; Save needle len
+
+    mov rcx, 1          ; start at 1 since we already know first char matches.
     call .inner_loop    ; Call inner loop
 
     pop rdx            ; Restore registers
@@ -60,7 +60,7 @@ asm_strstr:
 .inner_compare:
 
     cmp rcx, rdx ; compare counter with needle length
-    jge .match ;If all chars checked, return
+    jge .match   ;If all chars checked, return
 
     mov al, byte [rdi + rcx] ; get next haystack char.
     mov bl, byte [rsi + rcx]  ;get next needle char
@@ -79,22 +79,21 @@ asm_strstr:
 
 .found:
     ; Calculate the address to return (original haystack + index)
-    sub rdi, r8          ;Calculate how much we advanced
-    sub rdi, 1         ;Remove 1, since the first char matches.
+    sub rdi, r8      ; Calculate how much we advanced
     add r8, rdi
-    mov rax, r8   ; Address of matching substring
-    mov rsp, rbp    ; restore stack
+    mov rax, r8      ; Address of matching substring
+    mov rsp, rbp     ; restore stack
     pop rbp
     ret                 ; Return
 
 .not_found:
-    xor rax, rax        ; Set rax to 0
-    mov rsp, rbp    ; restore stack
+    xor rax, rax        ; Set rax to 0 (NULL)
+    mov rsp, rbp     ; restore stack
     pop rbp
     ret                 ; Return NULL
 
 .empty_needle:
-    mov rax, [rbp + 8]        ; Return haystack if needle is empty bit sad innit 
-    mov rsp, rbp    ; restore stack
+    mov rax, r8        ; Return haystack if needle is empty <--- FIXED
+    mov rsp, rbp     ; restore stack
     pop rbp
     ret
