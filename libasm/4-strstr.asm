@@ -3,22 +3,17 @@
 
 section .text
     global asm_strstr
-    extern asm_strlen
 
 asm_strstr:
-    ; --- Handle empty needle case ---
     push rbp
     mov rbp, rsp
 
-    mov rdi, rsi     ; Put the address of 'needle' in rdi (for asm_strlen)
-    call asm_strlen  ; get the length of needle.
-    test rax, rax   ; check if needle length is 0.
-    jz .empty_needle ; Jump if zero.
+    ; --- Check for Empty Needle ---
+    cmp byte [rsi], 0  ; Directly check if needle is empty
+    je .empty_needle   ; If needle is empty, return haystack
 
-    ; --- Setup ---
-    mov rdx, rax        ; store the length of needle to rdx.
-    mov rsi, [rbp + 24] ; Restore rsi (needle pointer)
-    mov r8, rdi         ; save the hay pointer, before it changes.
+    ; --- Setup (Simplified) ---
+    mov r8, rdi         ; Save the original haystack pointer
 
 .outer_loop:
     mov cl, byte [rdi]   ; Load a byte from haystack
@@ -31,16 +26,13 @@ asm_strstr:
     ; --- Potential match: Inner loop ---
     push rdi            ; Save haystack pointer
     push rsi            ; Save needle pointer
-    push rcx            ; Save outer loop counter
-    push rdx            ; Save needle len
 
-    mov rcx, 1          ; start at 1 since we already know first char matches.
     call .inner_loop    ; Call inner loop
 
-    pop rdx            ; Restore registers
-    pop rcx
-    pop rsi
-    pop rdi
+    ; No need to pop rcx or rdx
+
+    pop rsi             ; Restore needle pointer
+    pop rdi             ; Restore haystack pointer
 
     test rax, rax   ; Check if inner_loop found a match
     jnz .found       ; If match found, jump to .found
@@ -50,50 +42,58 @@ asm_strstr:
     jmp .outer_loop     ; Continue outer loop
 
 .inner_loop:
-;Inputs:
-; rdi: Current haystack location
-; rsi: Needle address.
-; rcx: index.
-; rdx: needle length
-;Return
-; rax: 1 if match, 0 otherwise.
+    ; rdi: Current haystack location
+    ; rsi: Current needle location
+    ; Return: rax = 1 if match, 0 otherwise
+
+    ; Initialize a counter (we *could* use rcx, but a separate register is cleaner)
+    ;  We don't strictly *need* a counter, but it makes the return address calculation
+    ;  slightly easier to understand, as it directly represents the offset.
+    push r9 ; using r9 as inner loop counter. Must be saved.
+    xor r9, r9         ;  r9 = 0
+
 .inner_compare:
+    mov al, byte [rdi + r9] ; Load byte from haystack
+    mov bl, byte [rsi + r9] ; Load byte from needle
 
-    cmp rcx, rdx ; compare counter with needle length
-    jge .match   ;If all chars checked, return
+    cmp bl, 0            ; *** Check for end of NEEDLE ***
+    je .match           ; If end of needle, it's a match YAY
 
-    mov al, byte [rdi + rcx] ; get next haystack char.
-    mov bl, byte [rsi + rcx]  ;get next needle char
+    cmp al, bl           ; Compare haystack and needle bytes
+    jne .no_match       ; If not equal, no match
 
-    cmp al, bl
-    jne .no_match
+    cmp al, 0           ;check if it is the end of the hay.
+    je .no_match
 
-    inc rcx     ; increase index
-    jmp .inner_compare
+    inc r9              ; Increment the counter
+    jmp .inner_compare  ; Continue comparing
+
 .match:
-    mov rax, 1 ;set return to 1, indicating match
+    mov rax, 1          ; Set rax to 1 (match found)
+    pop r9
     ret
+
 .no_match:
-    xor rax, rax    ;Set rax to zero
+    xor rax, rax        ; Set rax to 0 (no match)
+    pop r9
     ret
 
 .found:
-    ; Calculate the address to return (original haystack + index)
-    sub rdi, r8      ; Calculate how much we advanced
-    add r8, rdi
-    mov rax, r8      ; Address of matching substring
-    mov rsp, rbp     ; restore stack
+    ; Calculate return address (original haystack + offset)
+    add r8, r9          ; Add the offset (from r9) to the original haystack pointer
+    mov rax, r8          ; Store the result in rax
+    mov rsp, rbp
     pop rbp
-    ret                 ; Return
+    ret
 
 .not_found:
-    xor rax, rax        ; Set rax to 0 (NULL)
-    mov rsp, rbp     ; restore stack
+    xor rax, rax        ; Set rax to 0
+    mov rsp, rbp
     pop rbp
-    ret                 ; Return NULL
+    ret
 
 .empty_needle:
-    mov rax, r8        ; Return haystack if needle is empty <--- FIXED
-    mov rsp, rbp     ; restore stack
+    mov rax, r8          ; Return the original haystack pointer
+    mov rsp, rbp
     pop rbp
     ret
