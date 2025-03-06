@@ -1,38 +1,39 @@
 ; 6-putc.asm
-; size_t asm_putc(int c);
 
 section .data
     char_buffer db 0   ; Single-byte buffer
 
 section .text
     global asm_putc
-    global asm_write_char  ; Make the write function globally accessible
+    global asm_write_char
 
-; This function performs the actual system call.
 asm_write_char:
+    push rbp         ; Save rbp
+    mov rbp, rsp     ; set up stack frame
+
     mov rax, 1          ; Syscall number for write
     mov rdi, 1          ; stdout file descriptor
-    mov rsi, rdi        ; Third argument (buffer) passed by the caller
+    mov rsi, [rbp + 16] ; Third argument is the buffer address
     mov rdx, 1          ; Number of bytes to write (1)
     syscall             ; Perform the write
-    ret                 ;return the value of rax.
+
+    mov rsp, rbp     ; Restore the stack
+    pop rbp           ; Restore rbp
+
+    ret          ; Return
 
 asm_putc:
-    push rbp
-    mov rbp, rsp
-    sub rsp, 8         ; *** Align the stack to 16 bytes ***
+    push rbp           ; Save the caller's base pointer
+    mov  rbp, rsp      ; Set up our stack frame
+    sub  rsp, 8          ;create space for local and align the stack
 
-    ; Load the character into the buffer (using RIP-relative addressing)
-    mov byte [rel char_buffer], dil
+    mov byte [rel char_buffer], dil  ; Store the character
 
-    ; Prepare arguments for asm_write_char
-    lea rdi, [rel char_buffer] ;  Pass the buffer address to our helper function
+    lea rdi, [rel char_buffer]   ; Get address of the buffer
+    push rdi                 ;put buffer address to stack
+    call asm_write_char         ;call to function
+    add rsp, 8        ;clean stack
 
-    ; Jump to the write function
-    jmp asm_write_char        ; Jump to asm_write_char.
-
-    ; rax already contains the return value (bytes written)
-    add rsp, 8         ; *** Restore the stack pointer ***
-    mov rsp, rbp
-    pop rbp
-    ret
+    mov rsp, rbp      ; Restore stack pointer
+    pop rbp           ; Restore base pointer
+    ret               ; Return to the C caller
