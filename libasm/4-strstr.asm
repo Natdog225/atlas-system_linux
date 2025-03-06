@@ -17,7 +17,7 @@ asm_strstr:
 
     ; --- Setup ---
     mov rdx, rax ; store the length of needle to rdx.
-    mov rsi, [rbp + 16] ; restore rsi to the correct address, pointing to needle.
+    mov rsi, [rbp + 16] ; restore rsi to the correct address
     mov r8, rdi  ; save the hay pointer, before it changes.
 
 .outer_loop:
