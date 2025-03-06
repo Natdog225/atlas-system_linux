@@ -1,92 +1,77 @@
-; 4-strstr.asm
-; char *asm_strstr(const char *haystack, const char *needle);
+; strstr
+; @rdi: haystack string
+; @rsi: needle string
+;
+; return: rax with location of beginning of str match, or null if not found
 
 section .text
-    global asm_strstr
+	global asm_strstr
 
 asm_strstr:
-    push rbp
-    mov rbp, rsp
+	; The main function implementing the strstr functionality.
 
-    ; --- Check for Empty Needle ---
-    mov al, byte [rsi] ; Load the first byte of the needle
-    test al, al      ; Check if it's 0 (empty string)
-    jz .empty_needle  ; If it's 0, jump to .empty_needle
+.outerLoop:
+	; Load a byte from the haystack into al.
+	mov al, byte [rdi]
+	; Load a byte from the needle into bl.
+	mov bl, byte [rsi]
 
-    ; --- Setup (Simplified) ---
-    mov r8, rdi         ; Save the original haystack pointer
+	; Check if the needle is empty. If so, return the haystack.
+	cmp bl, 0
+	je .found
 
-.outer_loop:
-    mov cl, byte [rdi]   ; Load a byte from haystack
-    cmp cl, 0            ; Check for end of haystack
-    je .not_found        ; If end of haystack, not found
+	; Compare the current haystack byte with the first needle byte.
+	cmp al, bl
+	je .matchingFirstChar  ; If they match, proceed to check the rest.
 
-    cmp cl, byte [rsi]   ; Compare with first byte of needle
-    jne .next_haystack   ; If not equal, try next haystack char
+	; Check for the end of the haystack.
+	cmp al, 0
+	je .notFound       ; If end of haystack, needle not found.
 
-    ; --- Potential match: Inner loop (Inlined) ---
-    push rdi            ; Save haystack pointer
-    push rsi            ; Save needle pointer
-    push r9             ; Save inner loop counter
+	; Move to the next character in the haystack.
+	inc rdi
+	jmp .outerLoop      ; Continue the outer loop.
 
-    xor r9, r9         ; Initialize inner loop counter
 
-.inner_loop:  ;
-    ; rdi: Current haystack location
-    ; rsi: Current needle location
-    ; r9:  Offset
+.matchingFirstChar:
+	; Save the current haystack position (potential start of match).
+	mov rbx, rdi
+	; Save the needle's starting position.
+	mov rcx, rsi
 
-    mov al, byte [rdi + r9] ; Load byte from haystack at offset
-    mov bl, byte [rsi + r9] ; Load byte from needle at offset
+.innerLoop:
+	; Advance pointers for both haystack and needle.
+	inc rbx
+	inc rcx
 
-    test bl, bl          ; Check for end of NEEDLE
-    jz .match_found      ; If end of needle, it's a match!
+	; Load the next byte from the haystack (using the saved position).
+	mov al, byte [rbx]
+	; Load the next byte from the needle.
+	mov dl, byte [rcx]
 
-    cmp al, bl           ; Compare haystack and needle bytes
-    jne .no_match_inline ; If not equal, no match
+	; Check if we've reached the end of the needle (full match).
+	cmp dl, 0
+	je .found
 
-    test al, al         ;check for the end of hay
-    jz .no_match_inline
+	; Check if we've reached the end of the haystack.
+	cmp al, 0
+	je .notFound
 
-    inc r9              ; Increment the offset
-    jmp .inner_loop     ; Continue comparing (inlined loop)
+	; Compare the current bytes from haystack and needle.
+	cmp al, dl
+	je .innerLoop  ; If they match, continue the inner loop.
 
-.match_found:          ; Jump target for inner loop match
-    mov rax, 1          ; Set rax to 1 (match)
-    jmp .found_continue ; Skip the no_match logic
+	; If bytes don't match, increment the original haystack pointer
+	; and restart the outer loop.
+	inc rdi
+	jmp .outerLoop
 
-.no_match_inline:      ; Jump target for inner loop mismatch
-    xor rax, rax        ; Set rax to 0 (no match)
-
-.found_continue:          ; Common exit point for inner loop
-    pop r9             ; Restore inner loop counter
-    pop rsi             ; Restore needle pointer
-    pop rdi             ; Restore haystack pointer
-
-    test rax, rax        ;check the match flag (1 for match, 0 otherwise)
-    jnz .found          ; Jump if match
-; else, falls through to the next outer loop
-
-.next_haystack:
-    inc rdi             ; Move to next character in haystack
-    jmp .outer_loop     ; Continue outer loop
+.notFound:
+	; Needle not found, return NULL (0).
+	xor rax, rax
+	ret
 
 .found:
-    ; Calculate return address (original haystack + offset)
-    add r8, r9          ; Add the offset to the original haystack pointer
-    mov rax, r8          ; Store the result in rax
-    mov rsp, rbp
-    pop rbp
-    ret
-
-.not_found:
-    xor rax, rax        ; Set rax to 0 (NULL)
-    mov rsp, rbp
-    pop rbp
-    ret
-
-.empty_needle:
-    mov rax, r8          ; Return the original haystack pointer
-    mov rsp, rbp
-    pop rbp
-    ret
+	; Needle found, return the starting address of the match (rdi).
+	mov rax, rdi
+	ret
