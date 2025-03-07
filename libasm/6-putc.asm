@@ -6,38 +6,33 @@ section .data
 
 section .text
     global asm_putc
-    global asm_write_char  ; Make the write function globally accessible
+    global asm_write_char
 
-; This function performs the actual system call.
 asm_write_char:
-    push rbp              ; Preserve rbp
-    mov rbp, rsp          ; Set up stack Frame
-    mov rax, 1          ; Syscall number for write
-    mov rdi, 1          ; stdout file descriptor
-    mov rsi, [rbp + 16] ; Load buffer address from the stack
-    mov rdx, 1          ; Number of bytes to write (1)
-    syscall             ; Perform the write
-    mov rsp, rbp       ; Restore Stack
-    pop rbp            ; Restore rbp
-    ret                 ; Return (to the C caller!)
+    ; returning directly to asm_putc's caller.
+    mov rax, 1      ; Syscall number for write
+    mov rdi, 1      ; stdout file descriptor
+    ; rsi is already set up correctly by asm_putc
+    mov rdx, 1      ; Number of bytes to write (1)
+    syscall         ; Perform the write
+    ret             ; Return to C caller (NOT back to asm_putc)
 
 asm_putc:
-    push rbp           ; Save caller's base pointer.
-    mov rbp, rsp       ; set up stack frame
-    sub rsp, 8    ; Align stack to 16 bytes (and make space for char).
+    push rbp          ;save rbp
+    mov rbp, rsp       ;set up stack frame
+    sub rsp, 8    ;align stack
 
-    mov byte [rel char_buffer], dil  ; Store the character (RIP-relative)
+    ; Store character in the buffer (RIP-relative addressing).
+    mov byte [rel char_buffer], dil
 
     ; Prepare for the jump to asm_write_char
-    lea rax, [rel char_buffer]   ; Get the address of the buffer
-    push rax                 ;push buffer to the stack.
+    lea rsi, [rel char_buffer] ; Load the *address* of char_buffer into rsi
 
-    ; Jump to the write function.
-    jmp asm_write_char      ; Jump (NOT call)
+    ; Jump by Van Halen
+    jmp asm_write_char
 
-    ; Execution continues *here* after asm_write_char returns.
-
-    add rsp, 8             ; Restore stack.
-    mov rsp, rbp           ; restore stack pointer
-    pop rbp            ; Restore base pointer.
-    ret               ; Return to C caller.
+    ; We will NEVER get here unless of course it doesn't work. So its just fun
+    add rsp, 8
+    mov rsp, rbp
+    pop rbp
+    ret

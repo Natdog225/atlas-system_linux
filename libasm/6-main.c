@@ -5,10 +5,6 @@
 
 #include "libasm.h"
 
-#define S1  "Holberton School"
-#define S2  "School"
-#define S3  "Socool"
-
 /**
  * main - Program entry point
  *
@@ -16,9 +12,11 @@
  */
 int main(void)
 {
-    assert(strstr(S1, S2) == asm_strstr(S1, S2));
-    assert(strstr(S1, S3) == asm_strstr(S1, S3));
-    assert(strstr(S1, S1) == asm_strstr(S1, S1));
+    assert(asm_putc('H') == 1);
+    assert(asm_putc('b') == 1);
+    assert(asm_putc('t') == 1);
+    assert(asm_putc('n') == 1);
+    assert(asm_putc('\n') == 1);
 
     printf("All good!\n");
     return (EXIT_SUCCESS);
