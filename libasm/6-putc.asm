@@ -10,9 +10,9 @@ section .text
 asm_putc:
     push rbp           ; Save caller's base pointer.
     mov rbp, rsp       ; set up stack frame
-    sub rsp, 8    ; Align stack to 16 bytes (and make space for char).
+    sub rsp, 8    ; Align stack to 16 bytes
 
-    mov byte [rel char_buffer], dil  ; Store the character (RIP-relative)
+    mov byte [rel char_buffer], dil  ; (RIP-relative)
 
     ; Prepare for the jump to asm_write_char
     lea rsi, [rel char_buffer]   ; Get the address of the buffer
@@ -23,7 +23,7 @@ asm_putc:
     ; rsi holds the buffer address
     mov rdx, 1          ; Number of bytes to write (1)
 
-    ; Perform the system call directly. NO JMP
+    ; Perform the system call directly. NO JMP by van halen
     syscall
 
     ; --- Cleanup and Return ---
