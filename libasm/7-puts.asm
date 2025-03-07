@@ -8,35 +8,47 @@ section .text
 asm_puts:
     push rbp
     mov rbp, rsp
-    sub rsp, 16  ; Allocate stack space (aligned)
 
-    push rdi      ; Save the original string pointer
-    call asm_strlen ; Get string length (result in rax)
-    pop rdi       ; Restore original string pointer
+    ; --- Calculate String Length ---
+    push rdi          ; Save original string pointer 
+    call asm_strlen   ; Get string length (result in rax)
+    pop rdi           ; Restore original string pointer
 
-    mov rdx, rax  ; rdx = string length
-    inc rdx       ; rdx = string length + 1 (for newline)
+    ; --- Allocate Stack Space and Align ---
+    mov rdx, rax     ; rdx = string length
+    inc rdx          ; rdx = string length + 1 (for newline)
+    push rdx          ; Save the length + 1
+    ; sub rsp, rax   ; Allocate space for string.
+    ; sub rsp, 8     ; Allocate space for '\n',
+    add rdx, 15
+    and rdx, -16   ; clearing the last 4 bits, rdx % 16 == 0.
+    sub rsp, rdx ;allocate stack space, and ensure is 16 aligned.
 
-    mov rcx, 0    ; Initialize copy loop counter
+    ; --- Copy String to Stack (using rep movsb) ---
+    ;   rdi: source (original string)
+    ;   rsi: destination (stack)
+    ;   rcx: count (string length)
+    mov rsi, rdi          ; Source = original string
+    mov rdi, rsp          ; Destination = stack
+    mov rcx, rax          ; Number of bytes to copy = string length
+    rep movsb             ; Copy the string to the stack
 
-.copy_loop:
-    cmp rcx, rdx  ; copied the entire original string?
-    jae .add_newline ; Cool add newline
-    mov bl, [rdi + rcx]   ; Load byte from input string
-    mov [rsp + rcx], bl   ; Store byte on the stack
-    inc rcx                ; Increment counter
-    jmp .copy_loop         ; Repeat
+    ; --- Add Newline ---
+    mov byte [rdi], 10     ; rsp now points *past* the copied string,
 
-.add_newline:
-    mov byte [rsp + rcx], 10  ; Add newline character
+    ; --- Prepare for syscall ---
+    mov rax, 1           ; Syscall number for write
+    mov rdi, 1           ; File descriptor 1 (stdout)
+    ; rsi is already set to rsp (beginning of copied string on stack)
+    ; rdx was string_len+1, so it contains the correct count.
+    pop rdx             ; recover string length + 1
 
-    ; Prepare for the write syscall
-    mov rax, 1          ; Syscall number for write
-    mov rdi, 1          ; File descriptor 1 (stdout)
-    mov rsi, rsp        ; Pointer to the string (on the stack)
+    ; --- Perform the system call ---
+    syscall              ; Write to stdout
 
-    syscall            ; Perform the write
+    ; --- Cleanup and Return ---
+    ; add rsp, <amount> ; No longer add rsp manually - calculate the space
 
-    add rsp, 16  ; Deallocate stack space
-    pop rbp      ; Restore caller's base pointer
-    ret           ; Return
+    mov rsp, rbp      ; Full stack frame restoration is simpler
+    pop rbp           ; and avoids any potential alignment issues.
+    ret                ; Return
