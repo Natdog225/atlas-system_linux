@@ -20,15 +20,15 @@ asm_puts:
     mov rcx, 0    ; Initialize copy loop counter
 
 .copy_loop:
-    cmp rcx, rax  ; Have we copied the entire original string?
-    jae .add_newline ; If rcx >= original string length, add newline
+    cmp rcx, rdx  ; copied the entire original string?
+    jae .add_newline ; Cool add newline
     mov bl, [rdi + rcx]   ; Load byte from input string
     mov [rsp + rcx], bl   ; Store byte on the stack
     inc rcx                ; Increment counter
     jmp .copy_loop         ; Repeat
 
 .add_newline:
-    mov byte [rsp + rcx], 10  ; Add newline character (ASCII 10)
+    mov byte [rsp + rcx], 10  ; Add newline character
 
     ; Prepare for the write syscall
     mov rax, 1          ; Syscall number for write
