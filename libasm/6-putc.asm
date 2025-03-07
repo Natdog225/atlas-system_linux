@@ -10,12 +10,16 @@ section .text
 
 asm_write_char:
     ; returning directly to asm_putc's caller.
-    mov rax, 1      ; Syscall number for write
-    mov rdi, 1      ; stdout file descriptor
-    ; rsi is already set up correctly by asm_putc
-    mov rdx, 1      ; Number of bytes to write (1)
-    syscall         ; Perform the write
-    ret             ; Return to C caller (NOT back to asm_putc)
+    push rbp              ; Preserve rbp
+    mov rbp, rsp          ; Set up stack Frame
+    mov rax, 1          ; Syscall number for write
+    mov rdi, 1          ; stdout file descriptor
+    mov rsi, [rbp + 16] ; Load buffer address from the stack -- CORRECTED
+    mov rdx, 1          ; Number of bytes to write (1)
+    syscall             ; Perform the write
+    mov rsp, rbp       ; Restore Stack
+    pop rbp            ; Restore rbp
+    ret                 ; Return (to the C caller!)
 
 asm_putc:
     push rbp          ;save rbp
