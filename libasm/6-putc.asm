@@ -6,37 +6,28 @@ section .data
 
 section .text
     global asm_putc
-    global asm_write_char
-
-asm_write_char:
-    ; returning directly to asm_putc's caller.
-    push rbp              ; Preserve rbp
-    mov rbp, rsp          ; Set up stack Frame
-    mov rax, 1          ; Syscall number for write
-    mov rdi, 1          ; stdout file descriptor
-    mov rsi, [rbp + 16] ; Load buffer address from the stack -- CORRECTED
-    mov rdx, 1          ; Number of bytes to write (1)
-    syscall             ; Perform the write
-    mov rsp, rbp       ; Restore Stack
-    pop rbp            ; Restore rbp
-    ret                 ; Return (to the C caller!)
 
 asm_putc:
-    push rbp          ;save rbp
-    mov rbp, rsp       ;set up stack frame
-    sub rsp, 8    ;align stack
+    push rbp           ; Save caller's base pointer.
+    mov rbp, rsp       ; set up stack frame
+    sub rsp, 8    ; Align stack to 16 bytes (and make space for char).
 
-    ; Store character in the buffer (RIP-relative addressing).
-    mov byte [rel char_buffer], dil
+    mov byte [rel char_buffer], dil  ; Store the character (RIP-relative)
 
     ; Prepare for the jump to asm_write_char
-    lea rsi, [rel char_buffer] ; Load the *address* of char_buffer into rsi
+    lea rsi, [rel char_buffer]   ; Get the address of the buffer
 
-    ; Jump by Van Halen
-    jmp asm_write_char
+    ; Prepare arguments for the syscall
+    mov rax, 1          ; Syscall number for write
+    mov rdi, 1          ; stdout file descriptor
+    ; rsi holds the buffer address
+    mov rdx, 1          ; Number of bytes to write (1)
 
-    ; We will NEVER get here unless of course it doesn't work. So its just fun
-    add rsp, 8
-    mov rsp, rbp
-    pop rbp
-    ret
+    ; Perform the system call directly. NO JMP
+    syscall
+
+    ; --- Cleanup and Return ---
+    add rsp, 8             ; Restore stack
+    mov rsp, rbp           ; restore stack pointer
+    pop rbp            ; Restore base pointer.
+    ret               ; Return to C caller.
