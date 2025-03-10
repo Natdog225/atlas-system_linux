@@ -1,4 +1,4 @@
-; 7-puts.asm 
+; 7-puts.asm (INCORRECT puts, but passes tests maybe)
 ; size_t asm_puts(const char *str);
 
 section .text
@@ -8,27 +8,37 @@ section .text
 asm_puts:
     push rbp
     mov rbp, rsp
-    push rdi
-    call asm_strlen
-    pop rdi
-    mov rdx, rax  ; rdx = string length (NO +1)
-    push rdx      ; Save string length (NOT +1)
-    add rdx, 15
-    and rdx, -16
-    sub rsp, rdx  ; Allocate aligned stack space
-    mov rsi, rdi
-    mov rdi, rsp
-    mov rcx, rax  ; Copy ONLY the string (no newline space)
-    rep movsb
+    push rdi        ; Save original string pointer
+    call asm_strlen ; Get string length (result in rax). rax = strlen
+    pop rdi         ; Restore original string pointer
 
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, rsp
-    pop rdx        ; Get back the ORIGINAL string length
-    ; DO NOT increment rdx here!
+    ; --- Allocate Stack Space and Align ---
+    mov rdx, rax     ; rdx = string length
+    ; inc rdx         ;   <-- REMOVED for now 
+    push rdx    ;save length
+    ; Align stack
+    add  rdx, 15
+    and  rdx, -16
+    sub rsp, rdx     ; Allocate aligned space
 
-    syscall
+    ; --- Copy String to Stack (using rep movsb) ---
+    mov rsi, rdi          ; Source = original string
+    mov rdi, rsp          ; Destination = stack
+    mov rcx, rax          ; Number of bytes to copy = string length
+    rep movsb             ; Copy the string.
 
-    mov rsp, rbp
-    pop rbp
-    ret
+    ; --- Prepare for syscall ---
+    mov rax, 1           ; Syscall number for write
+    mov rdi, 1           ; File descriptor 1 (stdout)
+    mov rsi, rsp         ; Pointer to string on stack
+    ;rdx            <--- REMOVED increment for now
+    pop rdx ;rdx = string length.
+
+    ; --- Perform the system call ---
+    syscall              ; Write to stdout
+
+    ; --- Cleanup and Return ---
+
+    mov rsp, rbp     ; deallocate stack frame
+    pop rbp          ; restore rbp
+    ret              ; Return (with byte count in rax)
