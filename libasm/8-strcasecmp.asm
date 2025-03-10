@@ -86,6 +86,8 @@ asm_strcasecmp.skip_final_s2:
     movsx ecx, cl   ; Sign extend to 32 bits
     mov eax, ecx    ; Return value in rax
 
+    jmp .cleanup
+
     .null_s1:
     ; If s1 is NULL, return comparison with empty string
     mov r12, rsi    ; Use s2 as reference
