@@ -1,64 +1,62 @@
-; asm_strncasecmp.asm
-; int asm_strncasecmp(const char *s1, const char *s2, size_t n);
-
 section .text
-    global asm_strncasecmp
-
+global asm_strncasecmp
 asm_strncasecmp:
+    ; Save registers
     push rbp
     mov rbp, rsp
-
-    mov rcx, rdx        ; rcx = n (maximum chars to compare)
-
+    push rbx        ;preserve rbx
+    
+    mov rcx, rdx    ; rcx = n (counter)
+    
 .loop:
-    test rcx, rcx        ; Check if n == 0
-    jz .equal           ; If n == 0, strings are equal up to n
-
+    test rcx, rcx    ; Check if n == 0
+    jz .equal       ; If n == 0, strings are equal up to n
+    
     mov al, byte [rdi]  ; Load byte from s1
     mov bl, byte [rsi]  ; Load byte from s2
-
-    ; Convert to lowercase
+    
+    ; Convert al to lowercase if needed
     cmp al, 'A'
     jl .check_bl
     cmp al, 'Z'
-    jle .lower_al       ; Jump if al is in range ['A', 'Z']
-    jmp .check_bl
-.lower_al:
-    add al, 32          ; Convert al to lowercase
-
+    jg .check_bl
+    add al, 32      ; Convert to lowercase
+    
 .check_bl:
+    ; Convert bl to lowercase if needed
     cmp bl, 'A'
     jl .compare
     cmp bl, 'Z'
-    jle .lower_bl       ;Jump if bl is in range ['A', 'Z']
-    jmp .compare
-.lower_bl:
-    add bl, 32          ; Convert bl to lowercase
-
+    jg .compare
+    add bl, 32      ; Convert to lowercase
+    
 .compare:
-    cmp al, bl         ; Compare lowercase bytes
-    jne .diff           ; If not equal, jump to .diff
-
-    test al, al        ; Check for null terminator (either string)
-    jz .equal          ; If null, strings are equal up to this point
-
-    inc rdi             ; Move to next character in s1
-    inc rsi             ; Move to next character in s2
-    dec rcx             ; Decrement
-    jmp .loop           ; Continue
+    cmp al, bl      ; Compare bytes
+    jne .diff       ; If not equal, return difference, ew
+    
+    ; Check for null terminator in either string
+    test al, al     ; Check if we hit end of s1
+    jz .equal       ; If null, strings are equal up to this point
+    test bl, bl     ; Check if we hit end of s2
+    jz .equal       ; If null, strings are equal up to this point
+    
+    inc rdi         ; Move to next char in s1
+    inc rsi         ; Move to next char in s2
+    dec rcx         ; Decrement
+    jmp .loop       ; Continue
 
 .diff:
     ; Return the difference (al - bl)
-    sub al, bl          ; Subtract bytes (8-bit subtraction)
-    movsx eax, al       ; Sign-extend al to eax (32-bit result)
+    sub al, bl      ; Calculate difference
+    movsx eax, al   ; Sign-extend to 32 bits
     jmp .done
 
 .equal:
-    ; Strings are equal up to n (or up to terminator).
-    xor eax, eax        ; Return 0
-    ; Fall through to .done
-
+    xor eax, eax    ; Return 0 (strings are equal)
+    
 .done:
-    mov rsp, rbp    ; Restore stack frame
-    pop rbp         ;restore rbp
+    ; Restore saved registers
+    pop rbx
+    mov rsp, rbp
+    pop rbp
     ret
