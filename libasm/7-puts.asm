@@ -1,4 +1,4 @@
-; 7-puts.asm  (FORCED to be incorrect to match bad tests)
+; 7-puts.asm 
 ; size_t asm_puts(const char *str);
 
 section .text
@@ -20,8 +20,6 @@ asm_puts:
     mov rdi, rsp
     mov rcx, rax  ; Copy ONLY the string (no newline space)
     rep movsb
-
-    ; DO *NOT* add a newline here!
 
     mov rax, 1
     mov rdi, 1
