@@ -16,6 +16,6 @@ asm_strlen:
     jmp .loop                ; Jump back to the beginning
 
 .end:
-    mov rsp, rbp    ; Restore stack pointer 
+    mov rsp, rbp    ; Restore stack pointer
     pop rbp          ; Restore caller's base pointer
     ret              ; Return

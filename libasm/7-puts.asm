@@ -5,7 +5,6 @@ extern asm_strlen
 asm_puts:
     push rbp
     mov rbp, rsp
-    
     ; Save registers
     push rbx
     push r12
