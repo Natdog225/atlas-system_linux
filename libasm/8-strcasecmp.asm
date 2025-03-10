@@ -12,9 +12,9 @@ asm_strcasecmp:
 
     ; Check for NULL pointers
     cmp rdi, 0      ; Check if s1 is NULL
-    je .null_s1
+    je asm_strcasecmp.null_s1
     cmp rsi, 0      ; Check if s2 is NULL
-    je .null_s2
+    je asm_strcasecmp.null_s2
 
     ; Initialize pointers
     mov r12, rdi    ; s1
@@ -86,15 +86,15 @@ asm_strcasecmp.skip_final_s2:
     movsx ecx, cl   ; Sign extend to 32 bits
     mov eax, ecx    ; Return value in rax
 
-    jmp .cleanup
+    jmp asm_strcasecmp.cleanup
 
-    .null_s1:
+asm_strcasecmp.null_s1:
     ; If s1 is NULL, return comparison with empty string
     mov r12, rsi    ; Use s2 as reference
     mov r13, rsi    ; Compare s2 with itself
     jmp asm_strcasecmp.loop
 
-    .null_s2:
+asm_strcasecmp.null_s2:
     ; If s2 is NULL, return comparison with empty string
     mov r13, rdi    ; Use s1 as reference
     mov r12, rdi    ; Compare s1 with itself
