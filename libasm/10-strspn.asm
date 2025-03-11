@@ -1,56 +1,39 @@
-; asm_strspn.asm
-; size_t asm_strspn(const char *s, const char *accept);
-
-section .text
-    global asm_strspn
+SECTION .text
+global asm_strspn
 
 asm_strspn:
-    push rbp
-    mov rbp, rsp
-    ; Use rcx as the counter
-    xor rcx, rcx  ; Initialize the count (rcx) to 0
+    push rbx
+    mov rcx, -1 ; next_char counter
+    mov r8, 0   ; result
 
-.outer_loop:
-    mov al, byte [rdi + rcx] ; Load char from 's'
-    test al, al          ; Check for null terminator in 's'
-    jz .done             ; If null terminator, return the count
+    next_char:
+        inc rcx
+        movzx rax, byte [rdi + rcx]
 
-    push rdi  ; Save rdi.
-    push rsi  ; save rsi
-    push rcx  ; Save rcx.
+        test rax, rax
+        jz end_of_cmp
 
-    ; Inner loop: Scan 'accept' string for a match
-    mov rdi, rsi        ; rdi = accept string (inner loop)
-    xor rbx, rbx        ; rbx = inner loop counter
+        mov rdx, -1 ; reset check_char counter
+        jmp check_char
+        cont_next_char:
+        inc r8
 
-.inner_loop:
-    mov bl, byte [rdi + rbx]  ; Load char from 'accept'
-    test bl, bl          ; Check for null terminator in 'accept'
-    jz .not_found       ; If null terminator, char not found
+        jmp next_char
 
-    cmp al, bl           ; Compare s[i] with accept[j]
-    je .found_match     ; If match, increment count and continue outer loop
+    check_char:
+        inc rdx
+        movzx rbx, byte [rsi + rdx]
 
-    inc rdi             ; Move to next char in 'accept'
-    jmp .inner_loop     ; Check next char in accept
+        test rbx, rbx
+        jz end_of_cmp
 
-.found_match:
-    ; Character found in accept string.
-    inc rcx           ; Increment
-    ;pop rcx         ; Restore *Removed cause it was dumb.
-    pop rsi
-    pop rdi
-    jmp .outer_loop  ; continue next character in 's'
+        cmp rax, rbx
+        je cont_next_char
 
-.not_found:
-    ; Character not found in accept string.
-    pop rcx ;restore registers.
-    pop rsi
-    pop rdi
-    ; Fall through to .done
+        jmp check_char
 
-.done:
-     mov rax, rcx    ; The count is the return, put it on rax.
-    mov rsp, rbp
-    pop rbp
-    ret
+    ; RETURN
+    end_of_cmp:
+        pop rbx
+        mov rax, r8
+        ret
