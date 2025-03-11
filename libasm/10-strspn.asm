@@ -16,13 +16,15 @@ asm_strspn:
     jz .done             ; If null terminator, return the count
 
     push rdi  ; Save rdi.
+    push rsi  ; save rsi
     push rcx  ; Save rcx.
 
     ; Inner loop: Scan 'accept' string for a match
     mov rdi, rsi        ; rdi = accept string (inner loop)
+    xor rbx, rbx        ; rbx = inner loop counter
 
 .inner_loop:
-    mov bl, byte [rdi]  ; Load char from 'accept'
+    mov bl, byte [rdi + rbx]  ; Load char from 'accept'
     test bl, bl          ; Check for null terminator in 'accept'
     jz .not_found       ; If null terminator, char not found
 
@@ -36,12 +38,14 @@ asm_strspn:
     ; Character found in accept string.
     inc rcx           ; Increment
     pop rcx         ; Restore
+    pop rsi
     pop rdi
     jmp .outer_loop  ; continue next character in 's'
 
 .not_found:
     ; Character not found in accept string.
     pop rcx ;restore registers.
+    pop rsi
     pop rdi
     ; Fall through to .done
 
