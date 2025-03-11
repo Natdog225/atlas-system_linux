@@ -37,7 +37,7 @@ asm_strspn:
 .found_match:
     ; Character found in accept string.
     inc rcx           ; Increment
-    pop rcx         ; Restore
+    ;pop rcx         ; Restore *Removed cause it was dumb.
     pop rsi
     pop rdi
     jmp .outer_loop  ; continue next character in 's'
