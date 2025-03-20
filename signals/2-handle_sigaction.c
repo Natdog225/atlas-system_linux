@@ -1,4 +1,3 @@
-// 2-handle_sigaction.c
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
