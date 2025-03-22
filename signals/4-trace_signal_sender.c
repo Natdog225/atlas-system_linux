@@ -1,4 +1,5 @@
-#include <signals.h>
+#include <signal.h>
+#include "signals.h"
 
 /**
  * handle_sigquit - Signal handler for SIGQUIT.
