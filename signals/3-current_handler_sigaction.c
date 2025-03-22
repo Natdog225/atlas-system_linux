@@ -1,15 +1,19 @@
 #include <signal.h>
 #include <stdio.h>
-
+/**
+ * current_handler_sigaction - handler for SIGINTs
+ *
+ *
+ * Return: sa.sa_handler
+ */
 void (*current_handler_sigaction(void))(int)
 {
 	struct sigaction sa;
 
-	// Use sigaction with a NULL new action to retrieve current actiion
 	if (sigaction(SIGINT, NULL, &sa) == -1)
 	{
 		perror("sigaction");
-		return NULL;
+		return (NULL);
 	}
-	return sa.sa_handler;
+	return (sa.sa_handler);
 }
