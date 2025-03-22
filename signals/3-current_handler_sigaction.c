@@ -1,7 +1,7 @@
 #include <signal.h>
 #include <stdio.h>
 /**
- * current_handler_sigaction - handler for SIGINTs
+ * current_handler_sigaction - handler for STUFF
  *
  *
  * Return: sa.sa_handler
