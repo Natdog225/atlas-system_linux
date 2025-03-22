@@ -59,6 +59,8 @@
   "files.associations": {
 	"errno.h": "c",
 	"stdlib.h": "c",
-	"signals.h": "c"
+	"signals.h": "c",
+	"string.h": "c",
+	"signal.h": "c"
 }
 }
