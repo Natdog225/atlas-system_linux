@@ -14,7 +14,7 @@ void handle_sigint(int signum)
 }
 /**
  * handle_sigaction - handler for SIGINTs
- * @sig: signal number
+ *
  *
  * Return: void
  */
