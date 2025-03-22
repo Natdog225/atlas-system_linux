@@ -1,3 +1,3 @@
 #!/bin/sh
 
-trap 'echo Nope' SIGABRT SIGIO SIGTERM
+trap "echo Nope" SIGABRT SIGIO SIGTERM
