@@ -1,4 +1,4 @@
-#include <signals.h>
+#include "signals.h"
 
 /**
  * main - Prints a description of a given signal.
