@@ -2,8 +2,8 @@
 #include <signal.h>
 #include <unistd.h>
 /**
- * sigint_handler - handler for SIGINTs
- * @sig: signal number
+ * handle_sigint - handler for SIGINTs
+ * @signum: signal number
  *
  * Return: void
  */
@@ -13,7 +13,7 @@ void handle_sigint(int signum)
 	fflush(stdout);
 }
 /**
- * sigint_handler - handler for SIGINTs
+ * handle_sigaction - handler for SIGINTs
  * @sig: signal number
  *
  * Return: void
