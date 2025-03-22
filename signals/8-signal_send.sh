@@ -5,4 +5,4 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
-kill -SIGQUIT "$1"
+kill -3 "$1"
