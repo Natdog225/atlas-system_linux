@@ -1,17 +1,27 @@
-#include <stdio.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "signals.h"
 
+/**
+ * handle_sigint - Signal handler for SIGINT.
+ * @signum: The signal number
+ *
+ * Description: Prints messages and resets the signal handler to default
+ *
+ */
 void handle_sigint(int signum)
 {
 	printf("Caught %d\n", signum);
 	printf("Signal received\n");
-	fflush(stdout); // Ensure output is flushed before leaving like a proper guest
-	_exit(EXIT_SUCCESS);
+	fflush(stdout);
+
+	signal(SIGINT, SIG_DFL);
 }
 
-int main()
+/**
+ * main - Sets up a SIGINT handler and suspends.
+ *
+ * Return: Eh?
+ */
+int main(void)
 {
 	struct sigaction sa;
 
@@ -22,10 +32,8 @@ int main()
 	if (sigaction(SIGINT, &sa, NULL) == -1)
 	{
 		perror("sigaction");
-		return EXIT_FAILURE;
+		return (EXIT_FAILURE);
 	}
 
-	pause(); // Suspend indefinitely until sig
-
-	return EXIT_SUCCESS;
+	pause(); /* Suspend indefinitely until a signal is received */
 }
