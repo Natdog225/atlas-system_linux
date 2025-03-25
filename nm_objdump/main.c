@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		/* process a.out if no args */
+		/* process a.out i no args */
 		if (process_file(default_filename, argv[0]) != EXIT_SUCCESS)
 		{
 			overall_status = EXIT_FAILURE;
