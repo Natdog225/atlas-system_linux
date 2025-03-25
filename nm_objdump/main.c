@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		/* Default behavior: process a.out if no args */
+		/* process a.out if no args */
 		if (process_file(default_filename, argv[0]) != EXIT_SUCCESS)
 		{
 			overall_status = EXIT_FAILURE;
@@ -113,7 +113,6 @@ int main(int argc, char *argv[])
 			if (process_file(argv[i], argv[0]) != EXIT_SUCCESS)
 			{
 				overall_status = EXIT_FAILURE;
-				/* Continue processing other files even if one fails */
 			}
 		}
 	}
