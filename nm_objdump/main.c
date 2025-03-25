@@ -92,7 +92,7 @@ int process_file(const char *filename, const char *prog_name)
 	return (status);
 }
 
-int main(int argc, char *argv)
+int main(int argc, char *argv[])
 {
 	int i;
 	int overall_status = EXIT_SUCCESS;
