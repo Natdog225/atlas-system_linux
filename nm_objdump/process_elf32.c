@@ -10,7 +10,7 @@ int process_elf32(int fd, const char *filename, const char *prog_name,
 	char *strtab = NULL;
 	int status = EXIT_FAILURE; /* Assume failure initially, like life */
 	ssize_t bytes_read;
-	uint16_t i; /* Use appropriate type for loop counter, uint16_t for shnum */
+	uint16_t i;
 	Elf32_Shdr *symtab_shdr = NULL;
 	Elf32_Shdr *strtab_shdr = NULL;
 	size_t sh_tbl_size;
@@ -181,7 +181,7 @@ int process_elf32(int fd, const char *filename, const char *prog_name,
 				/* Undefined or weak undefined - print no value */
 				printf("         %c %s\n", sym_type, sym_name);
 			}
-			else
+			else if (sym_type != '?' && strlen(sym_name) > 0 && sym_type != 'a')
 			{
 				printf("%08x %c %s\n",
 					   (unsigned int)current_sym.st_value,
