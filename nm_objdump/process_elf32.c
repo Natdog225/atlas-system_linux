@@ -176,28 +176,23 @@ int process_elf32(int fd, const char *filename, const char *prog_name,
 			sym_type = get_symbol_type32(current_sym, shdr_table, swap_endian);
 
 			/* Filter out types we don't want (like '?') */
-			/* Also skip symbols with no name or type 'a' (unless required) */
-			if (sym_type != '?' && strlen(sym_name) > 0 && sym_type != 'a')
+			if (sym_type == 'U' || sym_type == 'w')
 			{
-				if (current_sym.st_value == 0 &&
-					(sym_type == 'U' || sym_type == 'w'))
-				{
-					/* Undefined or weak undefined - print no value */
-					printf("         %c %s\n", sym_type, sym_name);
-				}
-				else
-				{
-					printf("%08x %c %s\n",
-						   (unsigned int)current_sym.st_value,
-						   sym_type, sym_name);
-				}
+				/* Undefined or weak undefined - print no value */
+				printf("         %c %s\n", sym_type, sym_name);
+			}
+			else
+			{
+				printf("%08x %c %s\n",
+					   (unsigned int)current_sym.st_value,
+					   sym_type, sym_name);
 			}
 		}
 	}
 
-	status = EXIT_SUCCESS; /* If we reached here we did it! */
+status = EXIT_SUCCESS; /* If we reached here we did it! */
 
-cleanup:
+cleanup :
 	/* 8. Free allocated memory */
 	free(shstrtab);
 	free(shdr_table);
