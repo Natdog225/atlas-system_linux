@@ -31,9 +31,8 @@ char get_symbol_type64(Elf64_Sym sym, Elf64_Shdr *shdr_table, bool swap_endian)
 			   (shdr->sh_flags & SHF_ALLOC) && (shdr->sh_flags & SHF_WRITE)) {
 			c = 'B';
 		} else if ((shdr->sh_flags & SHF_ALLOC) && (shdr->sh_flags & SHF_WRITE)) {
-			// Writable, allocated sections (.data, .dynamic, etc.)
 			if (shdr->sh_type == SHT_DYNAMIC) c = 'D';
-			else c = 'D'; // Default to Data
+			else c = 'D';
 		} else if (shdr->sh_flags & SHF_ALLOC) {
 			c = 'R';
 		} else if (shdr->sh_type == SHT_NOTE) {
