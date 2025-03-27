@@ -48,7 +48,7 @@ char get_symbol_type64(Elf64_Sym sym, Elf64_Shdr *shdr_table, bool swap_endian)
 		c = tolower(c);
 	}
 
-	/* 4. Filter out specific symbol types not usually shown */
+	/* 4. Filter out specific symbol types */
 	if (type == STT_FILE || type == STT_SECTION) c = '?';
 
 	return (c);
@@ -102,7 +102,7 @@ char get_symbol_type32(Elf32_Sym sym, Elf32_Shdr *shdr_table, bool swap_endian)
 		c = tolower(c);
 	}
 
-	/* 4. Filter out specific symbol types not usually shown */
+	/* 4. Filter out specific symbol types */
 	if (type == STT_FILE || type == STT_SECTION) c = '?';
 
 	return (c);

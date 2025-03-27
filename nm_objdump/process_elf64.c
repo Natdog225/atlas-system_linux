@@ -82,7 +82,7 @@ int process_elf64(int fd, const char *filename, const char *prog_name,
 		}
 	}
 
-	/* 4. Find Symbol Table (SHT_SYMTAB) and associated String Table */
+	/* 4. Find Symbol Table (SHT_SYMTAB) */
 	for (i = 0; i < ehdr.e_shnum; i++)
 	{
 		if (shdr_table[i].sh_type == SHT_SYMTAB)
@@ -164,14 +164,13 @@ int process_elf64(int fd, const char *filename, const char *prog_name,
 		char sym_type;
 		const char *sym_name = "";
 
-		/* Skip symbols without names (like index 0) or section symbols sometimes */
+		/* Skip symbols without names (like Tim) or section symbols sometimes */
 		if (current_sym.st_name != 0)
 		{
 			sym_name = strtab + current_sym.st_name; /* Check bounds? */
 			sym_type = get_symbol_type64(current_sym, shdr_table, swap_endian);
 
 			/* Filter out types we don't want (like STT_FILE marked as '?') */
-			/* Also skip symbols with no name or type 'a' (unless required) */
 			if (sym_type != '?' && strlen(sym_name) > 0 && sym_type != 'a')
 			{
 				if (current_sym.st_value == 0 &&
