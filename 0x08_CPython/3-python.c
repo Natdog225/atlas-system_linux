@@ -10,7 +10,7 @@ void print_python_float(PyObject *p)
 	PyFloatObject *float_obj;
 	double value;
 
-	printf("[.] float object info\n")
+	printf("[.] float object info\n");
 	if (!PyFloat_Check(p))
 	{
 		printf("  [ERROR] Invalid Float Object\n");
