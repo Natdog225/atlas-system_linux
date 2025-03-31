@@ -38,7 +38,7 @@ void print_python_bytes(PyObject *p)
 		printf(" %02x", (unsigned char)data[i]);
 	}
 	printf("\n");
-	fflush(stdout)
+	fflush(stdout);
 }
 
 void print_python_list(PyObject *p)
