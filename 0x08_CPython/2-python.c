@@ -4,7 +4,7 @@
 #include <listobject.h>
 #include <bytesobject.h>
 
-void print_python_bytes(PyObject *p);
+void print_python_bytes(PyObject *p)
 {
 	PyBytesObject *bytes_obj;
 	Py_ssize_t size, i, limit;
