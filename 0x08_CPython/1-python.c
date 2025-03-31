@@ -5,7 +5,7 @@
 
 /**
  * print_python_list - Prints basic info about a Python list.
- * @p: A pointer to a PyObject list object.
+ * @p: A pointer to a PyObject object.
  */
 void print_python_list(PyObject *p)
 {

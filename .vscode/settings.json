@@ -57,10 +57,10 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-	"errno.h": "c",
-	"stdlib.h": "c",
-	"signals.h": "c",
-	"string.h": "c",
-	"signal.h": "c"
-}
+    "errno.h": "c",
+    "stdlib.h": "c",
+    "signals.h": "c",
+    "string.h": "c",
+    "signal.h": "c"
+  }
 }
