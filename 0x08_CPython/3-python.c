@@ -91,7 +91,7 @@ void print_python_list(PyObject *p)
 		}
 		else if (PyFloat_Check(element))
 		{
-			print_python_float(element)
+			print_python_float(element);
 		}
 
 	}
