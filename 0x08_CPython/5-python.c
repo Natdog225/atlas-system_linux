@@ -62,7 +62,7 @@ void print_python_int(PyObject *p)
 	}
 	if (size < 0)
 	{
-		print("-%lu\n", uval);
+		printf("-%lu\n", uval);
 	}
 	else
 	{
