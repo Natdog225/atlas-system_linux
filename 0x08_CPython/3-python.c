@@ -1,6 +1,7 @@
 #include <Python.h>
 #include <stdio.h>
 #include <pymath.h>
+#include <stdlib.h> 
 
 void print_python_bytes(PyObject *p);
 void print_python_float(PyObject *p);
@@ -10,6 +11,7 @@ void print_python_float(PyObject *p)
 {
 	PyFloatObject *float_obj;
 	double value;
+	char *str_val = NULL;
 
 	printf("[.] float object info\n");
 	if (!PyFloat_Check(p))
