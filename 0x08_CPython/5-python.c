@@ -19,7 +19,7 @@ void print_python_int(PyObject *p)
 		return;
 	}
 	plong = (PyLongObject *)p;
-	size = ((PyVarObject *)p)->ob_size
+	size = ((PyVarObject *)p)->ob_size;
 	abs_size = size < 0 ? -size : size;
 
 	if (abs_size == 0)
