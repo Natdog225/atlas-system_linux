@@ -22,10 +22,21 @@ void print_python_float(PyObject *p)
 
 	value = float_obj->ob_fval;
 
-	printf("  value: %g\n", value);
-	fflush(stdout);
+	str_val = PyOS_double_to_string(value, 'r', 0, Py_DTSF_ADD_DOT_0, NULL);
 
+	if (str_val)
+	{
+		printf("  value: %s\n", str_val);
+		PyMem_Free(str_val);
+	}
+	else
+	{
+		printf("  value: <error converting double to string>\n");
+	}
+
+	fflush(stdout);
 }
+
 
 void print_python_bytes(PyObject *p)
 {
@@ -93,7 +104,6 @@ void print_python_list(PyObject *p)
 		{
 			print_python_float(element);
 		}
-
 	}
 	fflush(stdout);
 }
