@@ -6,7 +6,6 @@
 #include <sys/user.h>  /* For user_regs_struct */
 #include <errno.h>	   /* For errno */
 #include <signal.h>	   /* For kill, SIGSTOP, SIGTRAP */
-#include "syscalls.h"
 
 /**
  * main - Executes and traces a command, printing syscall numbers on entry.
