@@ -104,10 +104,12 @@ int main(int argc, char *argv[], char *envp[])
 					/* The syscall number on x86_64 is in orig_rax */
 					fprintf(stdout, "%lld\n", regs.orig_rax);
 					/* Ensure the output is immediately visible */
+					fprintf(stdout, "DEBUG: %lld (syscall_entry was %d)\n", regs.orig_rax, syscall_entry); // Add debug
+
 					fflush(stdout);
 				}
 				/* Toggle the flag for the next stop (entry/exit alternation) */
-				syscall_entry = !syscall_entry;
+				// syscall_entry = !syscall_entry;
 			}
 		}
 	}
