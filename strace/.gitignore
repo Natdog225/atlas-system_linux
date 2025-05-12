@@ -12,7 +12,6 @@ strace_3
 
 # Debugging files (e.g., gdb history)
 .gdb_history
-/checker
 
 # Core dump files
 core
