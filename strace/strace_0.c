@@ -91,26 +91,31 @@ int main(int argc, char *argv[], char *envp[])
 
 			/* Check if stopped because of a syscall (SIGTRAP is used) */
 			if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP)
-			{
-				/* Only print information on syscall entry */
-				if (syscall_entry)
-				{
-					/* Retrieve the child's registers */
-					if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1)
-					{
-						perror("ptrace(GETREGS)");
-						return (EXIT_FAILURE);
-					}
-					/* The syscall number on x86_64 is in orig_rax */
-					fprintf(stdout, "%lld\n", regs.orig_rax);
-					/* Ensure the output is immediately visible */
-					fprintf(stdout, "DEBUG: %lld (syscall_entry was %d)\n", regs.orig_rax, syscall_entry); // Add debug
+            {
+                // Print regs and syscall_entry's value BEFORE the decision to print
+                if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1)
+                {
+                    perror("ptrace(GETREGS)");
+                    return (EXIT_FAILURE);
+                }
+                fprintf(stdout, "PRE-CHECK: Syscall %lld, syscall_entry is %d\n", regs.orig_rax, syscall_entry);
+                fflush(stdout);
 
-					fflush(stdout);
-				}
-				/* Toggle the flag for the next stop (entry/exit alternation) */
-				// syscall_entry = !syscall_entry;
-			}
+                if (syscall_entry)
+                {
+                    /* Original print */
+                    fprintf(stdout, "%lld\n", regs.orig_rax);
+                    /* Your existing debug print */
+                    fprintf(stdout, "DEBUG (IN-IF): Syscall %lld, syscall_entry was %d\n", regs.orig_rax, syscall_entry);
+                    fflush(stdout);
+                }
+
+                syscall_entry = !syscall_entry; // The toggle
+                // //syscall_entry = !syscall_entry; // Your commented out line
+
+                fprintf(stdout, "POST-TOGGLE: For syscall %lld, syscall_entry IS NOW %d\n", regs.orig_rax, syscall_entry);
+                fflush(stdout);
+            }
 		}
 	}
 	/* Program completed successfully */
