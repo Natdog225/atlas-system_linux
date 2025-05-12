@@ -1,123 +1,82 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>	   /* For fork, execve, getpid */
-#include <sys/ptrace.h>/* For ptrace */
+#include <unistd.h>
+#include <sys/ptrace.h>
 #include <sys/wait.h>
-#include <sys/user.h>  /* For user_regs_struct */
-#include <errno.h>	   /* For errno */
-#include <signal.h>	   /* For kill, SIGSTOP, SIGTRAP */
+#include <sys/user.h>
+#include <errno.h>
+#include <signal.h>
 
 /**
  * main - Executes and traces a command, printing syscall numbers on entry.
  * @argc: The number of command-line arguments.
  * @argv: The array of command-line arguments.
- * argv[0] is the program name ("./strace_0").
- * argv[1] is the full path to the command to trace.
- * argv[2..] are the arguments to the command.
  * @envp: The array of environment variables.
  *
  * Return: EXIT_SUCCESS on successful completion, EXIT_FAILURE on error.
  */
-int main(int argc, char *argv[], char *envp[])
-{
-	pid_t child_pid;
-	int status;
-	struct user_regs_struct regs;
-	/* Flag to alternate between syscall entry (print) and exit (don't print) */
-	int syscall_entry = 1;
+int main(int argc, char *argv[], char *envp[]) {
+    pid_t child_pid;
+    int status;
+    struct user_regs_struct regs;
+    int syscall_entry = 1; /* True for first entry */
 
-	/* Validate command-line arguments */
-	if (argc < 2)
-	{
-		fprintf(stderr, "Usage: %s command [args...]\n", argv[0]);
-		return (EXIT_FAILURE);
-	}
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s command [args...]\n", argv[0]);
+        return (EXIT_FAILURE);
+    }
 
-	/* Create a child process */
-	child_pid = fork();
-	if (child_pid == -1) /* Handle fork error */
-	{
-		perror("fork");
-		return (EXIT_FAILURE);
-	}
+    child_pid = fork();
+    if (child_pid == -1) {
+        perror("fork");
+        return (EXIT_FAILURE);
+    }
 
-	if (child_pid == 0) /* === Child process (Tracee) === */
-	{
-		/* Allow the parent to trace this process */
-		if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1)
-		{
-			perror("ptrace(TRACEME)");
-			exit(EXIT_FAILURE); /* Use exit in child, not return */
-		}
-		/* Stop self to ensure parent traces from the beginning (before execve) */
-		if (kill(getpid(), SIGSTOP) == -1)
-		{
-			perror("kill(SIGSTOP)");
-			exit(EXIT_FAILURE);
-		}
-		/* Execute the target command (argv[1]) with its arguments (argv + 1) */
-		/* execve replaces the current process image */
-		if (execve(argv[1], argv + 1, envp) == -1)
-		{
-			perror("execve");
-			exit(EXIT_FAILURE); /* Exit if execve fails */
-		}
-		/* execve only returns on error */
-	}
-	else /* === Parent process (Tracer) === */
-	{
-		/* Wait for the child's initial SIGSTOP */
-		waitpid(child_pid, &status, 0);
-		if (WIFEXITED(status))
-			return (EXIT_SUCCESS); /* Child exited unexpectedly */
+    if (child_pid == 0) { /* Child process */
+        if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1) {
+            perror("ptrace(TRACEME)");
+            exit(EXIT_FAILURE);
+        }
+        if (kill(getpid(), SIGSTOP) == -1) {
+            perror("kill(SIGSTOP)");
+            exit(EXIT_FAILURE);
+        }
+        if (execve(argv[1], argv + 1, envp) == -1) {
+            perror("execve");
+            exit(EXIT_FAILURE);
+        }
+    } else { /* Parent process */
+        waitpid(child_pid, &status, 0);
+        if (WIFEXITED(status)) {
+            return (EXIT_SUCCESS);
+        }
 
-		/* Main tracing loop: continue until the child exits */
-		while (1)
-		{
-			/* Continue the child process until the next syscall entry or exit */
-			if (ptrace(PTRACE_SYSCALL, child_pid, NULL, NULL) == -1)
-			{
-				if (errno == ESRCH) /* No such process: child has exited */
-					break;
-				perror("ptrace(SYSCALL) continue");
-				return (EXIT_FAILURE);
-			}
-			/* Wait for the child to stop again */
-			waitpid(child_pid, &status, 0);
-
-			/* Check if the child process has exited normally */
-			if (WIFEXITED(status))
-				break;
-
-			/* Check if stopped because of a syscall (SIGTRAP is used) */
-			if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP)
-            {
-                // Print regs and syscall_entry's value BEFORE the decision to print
-                if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1)
-                {
-                    perror("ptrace(GETREGS)");
-                    return (EXIT_FAILURE);
+        while (1) {
+            if (ptrace(PTRACE_SYSCALL, child_pid, NULL, NULL) == -1) {
+                if (errno == ESRCH) {
+                    break;
                 }
-                fprintf(stdout, "PRE-CHECK: Syscall %lld, syscall_entry is %d\n", regs.orig_rax, syscall_entry);
-                fflush(stdout);
+                perror("ptrace(SYSCALL) continue");
+                return (EXIT_FAILURE);
+            }
+            waitpid(child_pid, &status, 0);
 
-                if (syscall_entry)
-                {
-                    /* Original print */
+            if (WIFEXITED(status)) {
+                break;
+            }
+
+            if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
+                if (syscall_entry) {
+                    if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1) {
+                        perror("ptrace(GETREGS)");
+                        return (EXIT_FAILURE);
+                    }
                     fprintf(stdout, "%lld\n", regs.orig_rax);
-                    /* Your existing debug print */
-                    fprintf(stdout, "DEBUG (IN-IF): Syscall %lld, syscall_entry was %d\n", regs.orig_rax, syscall_entry);
                     fflush(stdout);
                 }
-
-                syscall_entry = !syscall_entry; // The toggle
-                // //syscall_entry = !syscall_entry; // Your commented out line
-
-                fprintf(stdout, "POST-TOGGLE: For syscall %lld, syscall_entry IS NOW %d\n", regs.orig_rax, syscall_entry);
-                fflush(stdout);
+                syscall_entry = !syscall_entry;
             }
-		}
-	}
-	/* Program completed successfully */
-	return (EXIT_SUCCESS);
+        }
+    }
+    return (EXIT_SUCCESS);
 }
