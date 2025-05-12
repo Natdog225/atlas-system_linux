@@ -1,14 +1,12 @@
-/* Include necessary headers */
-#include <stdio.h>	   /* For fprintf, stderr, stdout, fflush */
-#include <stdlib.h>	   /* For EXIT_FAILURE, EXIT_SUCCESS, exit */
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>	   /* For fork, execve, getpid */
 #include <sys/ptrace.h>/* For ptrace */
-#include <sys/wait.h>  /* For waitpid, WIFEXITED, WIFSTOPPED, WSTOPSIG */
+#include <sys/wait.h>
 #include <sys/user.h>  /* For user_regs_struct */
 #include <errno.h>	   /* For errno */
 #include <signal.h>	   /* For kill, SIGSTOP, SIGTRAP */
 #include "syscalls.h"
-#include <sys/regset.h>
 
 /**
  * main - Executes and traces a command, printing syscall numbers on entry.
