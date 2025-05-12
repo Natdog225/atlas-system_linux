@@ -1,0 +1,39 @@
+# Compiled Object files
+*.o
+
+# Compiled Executables (specific to this project)
+strace_0
+strace_1
+strace_2
+strace_3
+
+# General executable pattern (optional but good practice)
+# *.out
+
+# Debugging files (e.g., gdb history)
+.gdb_history
+
+# Core dump files
+core
+core.*
+
+# Editor backup and swap files
+*~
+*.swp
+*.swo
+#*#
+.*.swp
+.*.swo
+
+# OS generated files (macOS, Windows)
+.DS_Store
+Thumbs.db
+
+ Optional: Output/log files if you generate them during testing
+*.log
+*.txt
+output.*
+
+# Optional: If using ctags or cscope
+# tags
+# cscope.*
