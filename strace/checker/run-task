@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: ${0} <task_num (0|1|2)>" >&2
+    exit 1
+fi
+
+task_num=$1
+
+case "$task_num" in
+    0|1|2)
+        ;;
+    *)
+        echo "Usage: ${0} <task_num (0|1|2)>" >&2
+        exit 1 
+        ;;
+esac
+
+parser=./checker/parse_strace.rb
+test_cmd='/usr/bin/echo echo echo'
+
+trace_info() {
+    local message=$1
+    echo -e "\e[32m${message}\e[0m" 1>&2
+}
+
+trace_error() {
+    local message=$1
+    echo -e "\e[31m${message}\e[0m" 1>&2
+}
+
+fork_and_parse() {
+    local bin_path=$1
+    local child_argv=$2
+    $bin_path $child_argv 2>&1 1>/dev/null | $parser
+}
+
+diff_em() {
+    local solution=$1
+    local student=$2
+    local argv=$3
+
+    diff -p \
+        --label 'Expected Output' <(fork_and_parse $solution "${argv}") \
+        --label 'Student Output' <(fork_and_parse $student "${argv}")
+}
+
+run_check() {
+    local task_num=$1
+    local child_argv=$2
+    local solution_bin=./checker/_strace_${task_num}
+    local student_bin=./strace_${task_num}
+
+    if ! [ -x $student_bin ]; then
+        trace_error "Student file '${student_bin}' not found"
+        exit 1
+    fi
+
+    trace_info "Checking Task ${task_num}..."
+    trace_info "Command: ${child_argv}"
+
+    diff_em $solution_bin $student_bin "${child_argv}" \
+        && trace_info 'Your output is correct!' \
+        || trace_error 'One or more differences...see diff!'
+}
+
+run_check $task_num "$test_cmd"
