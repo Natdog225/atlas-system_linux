@@ -42,6 +42,7 @@ int main(int argc, char *argv[], char *envp[])
 	int is_syscall_entry = 1; /* 1 for entry, 0 for waiting for exit */
 
 	/* Workaround for environments with multiple SIGTRAPs for initial execve */
+    /*Cause the checker is silly */
 	int initial_execve_phase = 1;
 	int execve_trap_counter = 0;
 
