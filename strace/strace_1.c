@@ -47,15 +47,15 @@ const syscall_t *find_syscall_entry(long syscall_num)
 		 name_to_print = fallback_name;
 	 }
  
-	 fprintf(stdout, "%s", name_to_print); /* Print name without newline first */
+	 fprintf(stderr, "%s", name_to_print); /* Print name without newline first */
  
 	 if (syscall_num != 1) /* SYS_write is 1 on x86_64. Add newline for others. */
 	 {
-		 fprintf(stdout, "\n");
+		 fprintf(stderr, "\n");
 	 }
-	 fflush(stdout); /* Flush after name and potential newline */
+	 fflush(stderr); /* Flush after name and potential newline */
  }
- 
+
 /**
  * main - Executes and traces a command, printing syscall names.
  * @argc: The number of command-line arguments.
@@ -132,9 +132,9 @@ int main(int argc, char *argv[], char *envp[])
 					execve_trap_count++;
 					if (execve_trap_count == 1) /* Print only on 1st trap */
 					{
-						if (entry) fprintf(stdout, "%s\n", entry->name);
-						else fprintf(stdout, "syscall_%ld\n", syscall_num);
-						fflush(stdout);
+						if (entry) fprintf(stderr, "%s\n", entry->name);
+						else fprintf(stderr, "syscall_%ld\n", syscall_num);
+						fflush(stderr);
 					}
 					if (execve_trap_count >= 3) /* End of execve phase */
 					{
@@ -156,15 +156,15 @@ int main(int argc, char *argv[], char *envp[])
 
 					if (syscall_num == 231) /* exit_group: always print name */
 					{
-						if (entry) fprintf(stdout, "%s\n", entry->name);
-						else fprintf(stdout, "syscall_%ld\n", syscall_num);
-						fflush(stdout);
+						if (entry) fprintf(stderr, "%s\n", entry->name);
+						else fprintf(stderr, "syscall_%ld\n", syscall_num);
+						fflush(stderr);
 					}
 					else if (print_on_entry_flag) /* Regular alternating print */
 					{
-						if (entry) fprintf(stdout, "%s\n", entry->name);
-						else fprintf(stdout, "syscall_%ld\n", syscall_num);
-						fflush(stdout);
+						if (entry) fprintf(stderr, "%s\n", entry->name);
+						else fprintf(stderr, "syscall_%ld\n", syscall_num);
+						fflush(stderr);
 						print_on_entry_flag = !print_on_entry_flag;
 					}
 					else /* Not printing this one, just toggle */
