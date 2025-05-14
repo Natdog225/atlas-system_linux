@@ -24,7 +24,7 @@ int main(int argc, char *argv[], char *envp[])
 	int print_on_entry_flag = 1; /* For alternating prints */
 
 	/* Flags for specific handling of initial execve (syscall 59) */
-	/* Assumes execve might cause up to 3 SIGTRAPs in this environment */
+    /* Assuming 3 */
 	int in_execve_startup_phase = 1;
 	int execve_trap_count = 0;
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[], char *envp[])
 					execve_trap_count++;
 					if (execve_trap_count == 1) /* Print only on 1st trap */
 					{
-						fprintf(stdout, "%lld\n", syscall_num);
+						fprintf(stdout, "%ld\n", syscall_num);
 						fflush(stdout);
 					}
 					/* After 3 traps (or chosen number for this env), end phase */
@@ -112,13 +112,13 @@ int main(int argc, char *argv[], char *envp[])
 
 					if (syscall_num == 231) /* exit_group: always print */
 					{
-						fprintf(stdout, "%lld\n", syscall_num);
+						fprintf(stdout, "%ld\n", syscall_num);
 						fflush(stdout);
 						/* Loop will break soon due to WIFEXITED */
 					}
 					else if (print_on_entry_flag) /* Regular alternating print */
 					{
-						fprintf(stdout, "%lld\n", syscall_num);
+						fprintf(stdout, "%ld\n", syscall_num);
 						fflush(stdout);
 						print_on_entry_flag = !print_on_entry_flag;
 					}
