@@ -28,12 +28,11 @@ const syscall_t *find_syscall_entry(long syscall_num)
 }
 
 /**
- * print_name_conditionally - Prints syscall name to stderr.
- * Omits newline for SYS_write (syscall 1).
+ * print_syscall_name_with_newline - Prints syscall name to stderr, always with a newline.
  * @syscall_num: The number of the system call.
  * @entry: Pointer to the syscall_t entry.
  */
-void print_name_conditionally(long syscall_num, const syscall_t *entry)
+void print_syscall_name_with_newline(long syscall_num, const syscall_t *entry)
 {
 	const char *name_to_print;
 	char fallback_name[32]; /* Buffer for "syscall_XXX" */
@@ -44,17 +43,12 @@ void print_name_conditionally(long syscall_num, const syscall_t *entry)
 	}
 	else
 	{
+		/* Fallback if syscall number not in our table */
 		sprintf(fallback_name, "syscall_%ld", syscall_num);
 		name_to_print = fallback_name;
 	}
 
-	fprintf(stderr, "%s", name_to_print); /* Print name to stderr */
-
-	/* Add newline for all syscalls except SYS_write (1) */
-	if (syscall_num != 1)
-	{
-		fprintf(stderr, "\n");
-	}
+	fprintf(stderr, "%s\n", name_to_print); /* Always print name and a newline to stderr */
 	fflush(stderr); /* Flush stderr after printing */
 }
 
@@ -134,9 +128,9 @@ int main(int argc, char *argv[], char *envp[])
 					execve_trap_count++;
 					if (execve_trap_count == 1) /* Print only on 1st trap */
 					{
-						print_name_conditionally(syscall_num, entry);
+						print_syscall_name_with_newline(syscall_num, entry);
 					}
-					/* Manage flags for execve sequence for 3-trap */
+					/* Manage flags for execve sequence based on 3-trap observation */
 					if (execve_trap_count >= 3)
 					{
 						in_execve_startup_phase = 0;
@@ -158,12 +152,12 @@ int main(int argc, char *argv[], char *envp[])
 
 					if (syscall_num == 231) /* exit_group: always print */
 					{
-						print_name_conditionally(syscall_num, entry);
+						print_syscall_name_with_newline(syscall_num, entry);
 						/* Loop will break soon due to WIFEXITED */
 					}
 					else if (print_on_entry_flag) /* Regular alternating print */
 					{
-						print_name_conditionally(syscall_num, entry);
+						print_syscall_name_with_newline(syscall_num, entry);
 						print_on_entry_flag = !print_on_entry_flag;
 					}
 					else /* Not printing this one, just toggle for next entry */
