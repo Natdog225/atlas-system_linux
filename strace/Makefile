@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra -pedantic -std=gnu99 -g # Added -g for debugging
+CFLAGS = -Wall -Werror -Wextra -pedantic -std=gnu99 -g
 
-# Betty check variables (adjust paths if necessary)
+# Betty check variables
 BETTY_STYLE = betty-style.pl
 BETTY_DOC = betty-doc.pl
 

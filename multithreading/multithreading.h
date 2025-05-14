@@ -1,5 +1,11 @@
+#ifndef MULTITHREADING_H
+#define MULTITHREADING_H
+
 #include <stddef.h>
 #include <stdint.h>
+#include <pthread.h> // For pthread_mutex_t, pthread_t
+
+/*-------------------- STRUCTURES --------------------*/
 
 /**
  * struct pixel_s - RGB pixel
@@ -62,3 +68,9 @@ typedef struct blur_portion_s
     size_t h;
     kernel_t const *kernel;
 } blur_portion_t;
+
+
+struct list_s;
+struct node_s;
+
+#endif /* MULTITHREADING_H */
