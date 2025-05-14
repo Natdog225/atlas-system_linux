@@ -28,6 +28,35 @@ const syscall_t *find_syscall_entry(long syscall_num)
 }
 
 /**
+ * print_name_conditionally - Prints syscall name with conditional newline.
+ * @syscall_num: The number of the system call.
+ * @entry: Pointer to the syscall_t entry.
+ */
+ void print_name_conditionally(long syscall_num, const syscall_t *entry)
+ {
+	 const char *name_to_print;
+	 char fallback_name[32]; /* Buffer for "syscall_XXX" */
+ 
+	 if (entry)
+	 {
+		 name_to_print = entry->name;
+	 }
+	 else
+	 {
+		 sprintf(fallback_name, "syscall_%ld", syscall_num);
+		 name_to_print = fallback_name;
+	 }
+ 
+	 fprintf(stdout, "%s", name_to_print); /* Print name without newline first */
+ 
+	 if (syscall_num != 1) /* SYS_write is 1 on x86_64. Add newline for others. */
+	 {
+		 fprintf(stdout, "\n");
+	 }
+	 fflush(stdout); /* Flush after name and potential newline */
+ }
+ 
+/**
  * main - Executes and traces a command, printing syscall names.
  * @argc: The number of command-line arguments.
  * @argv: The array of command-line arguments.
