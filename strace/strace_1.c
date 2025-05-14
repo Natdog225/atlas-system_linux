@@ -115,64 +115,60 @@ int main(int argc, char *argv[], char *envp[])
 			if (WIFEXITED(status))
 				break;
 
-			if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP)
-			{
-				long syscall_num;
-				const syscall_t *entry;
-
-				if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1)
+				if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP)
 				{
-					perror("ptrace(GETREGS)"); return (EXIT_FAILURE);
-				}
-				syscall_num = regs.orig_rax;
-				entry = find_syscall_entry(syscall_num);
-
-				if (in_execve_startup_phase && syscall_num == 59) /* execve */
-				{
-					execve_trap_count++;
-					if (execve_trap_count == 1) /* Print only on 1st trap */
+					long syscall_num;
+					const syscall_t *entry;
+	
+					if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1)
 					{
-						if (entry) fprintf(stderr, "%s\n", entry->name);
-						else fprintf(stderr, "syscall_%ld\n", syscall_num);
-						fflush(stderr);
+						perror("ptrace(GETREGS)"); return (EXIT_FAILURE);
 					}
-					if (execve_trap_count >= 3) /* End of execve phase */
+					syscall_num = regs.orig_rax;
+					entry = find_syscall_entry(syscall_num); /* Find entry once */
+	
+					if (in_execve_startup_phase && syscall_num == 59) /* execve */
 					{
-						in_execve_startup_phase = 0;
-						print_on_entry_flag = 1; /* For next distinct syscall */
+						execve_trap_count++;
+						if (execve_trap_count == 1) /* Call helper only on 1st trap */
+						{
+							print_name_conditionally(syscall_num, entry);
+						}
+						/* Manage flags for execve sequence */
+						if (execve_trap_count >= 3)
+						{
+							in_execve_startup_phase = 0;
+							print_on_entry_flag = 1;
+						}
+						else
+						{
+							print_on_entry_flag = !print_on_entry_flag;
+						}
 					}
-					else /* For 1st/2nd execve traps, toggle to absorb */
+					else /* Normal syscall processing */
 					{
-						print_on_entry_flag = !print_on_entry_flag;
+						if (in_execve_startup_phase) /* Transition out if needed */
+						{
+							in_execve_startup_phase = 0;
+							print_on_entry_flag = 1;
+						}
+	
+						if (syscall_num == 231) /* exit_group: always print via helper */
+						{
+							print_name_conditionally(syscall_num, entry);
+							/* Loop will break on WIFEXITED next, no flag toggle needed */
+						}
+						else if (print_on_entry_flag) /* Regular print via helper */
+						{
+							print_name_conditionally(syscall_num, entry);
+							print_on_entry_flag = !print_on_entry_flag;
+						}
+						else /* Not printing this one, just toggle for next entry */
+						{
+							print_on_entry_flag = !print_on_entry_flag;
+						}
 					}
-				}
-				else /* Normal syscall processing */
-				{
-					if (in_execve_startup_phase) /* Transition out */
-					{
-						in_execve_startup_phase = 0;
-						print_on_entry_flag = 1;
-					}
-
-					if (syscall_num == 231) /* exit_group: always print name */
-					{
-						if (entry) fprintf(stderr, "%s\n", entry->name);
-						else fprintf(stderr, "syscall_%ld\n", syscall_num);
-						fflush(stderr);
-					}
-					else if (print_on_entry_flag) /* Regular alternating print */
-					{
-						if (entry) fprintf(stderr, "%s\n", entry->name);
-						else fprintf(stderr, "syscall_%ld\n", syscall_num);
-						fflush(stderr);
-						print_on_entry_flag = !print_on_entry_flag;
-					}
-					else /* Not printing this one, just toggle */
-					{
-						print_on_entry_flag = !print_on_entry_flag;
-					}
-				}
-			}
+			    }
 		}
 	}
 	return (EXIT_SUCCESS);
