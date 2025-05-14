@@ -6,7 +6,7 @@
 #include <sys/user.h>  /* For struct user_regs_struct */
 #include <errno.h>
 #include <signal.h>
-#include "syscalls.h"  /* For syscall_t and syscalls_64_g array */
+#include "syscalls.h"
 
 /**
  * find_syscall_entry - Finds the syscall definition by its number.
@@ -33,7 +33,7 @@ const syscall_t *find_syscall_entry(long syscall_num)
  * @argv: The array of command-line arguments.
  * @envp: The array of environment variables.
  *
- * Return: EXIT_SUCCESS on successful completion, EXIT_FAILURE on error.
+ * Return: EXIT_SUCCESS on successful completion, EXIT_FAILURE on y'know, failure
  */
 int main(int argc, char *argv[], char *envp[])
 {
