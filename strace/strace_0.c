@@ -102,7 +102,7 @@ int main(int argc, char *argv[], char *envp[])
 				else
 				{
 					/* If we were in execve phase but syscall is not 59, */
-					/* it means execve sequence was shorter than expected. */
+					/* it means execve was short. */
 					/* Transition to normal mode and ensure this syscall prints. */
 					if (in_execve_startup_phase)
 					{
