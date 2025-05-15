@@ -202,7 +202,6 @@ int parent_process(pid_t child)
 			{
 				fprintf(stdout, " = %#llx\n", (unsigned long long)regs.rax);
 			}
-			printf("\n");
 			fflush(stdout);
 			is_syscall_entry = 1; /* Expecting new syscall entry next */
 		}
