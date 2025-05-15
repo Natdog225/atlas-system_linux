@@ -19,7 +19,7 @@ void __attribute__((constructor)) init_tprintf_mutex(void)
 /**
  * destroy_tprintf_mutex - GCC destructor to destroy the tprintf mutex.
  *
- * Description: Destroys `tprintf_mutex` after main() completes or program exits.
+ * Description: Destroys `tprintf_mutex` after main completes or exits.
  */
 void __attribute__((destructor)) destroy_tprintf_mutex(void)
 {
