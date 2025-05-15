@@ -40,7 +40,8 @@ const syscall_t *find_syscall_entry(long syscall_num)
 static void dump_write_buffer(pid_t pid, unsigned long addr, size_t len)
 {
 	size_t i, j;
-	union {
+	union
+	{
 		long val;
 		char bytes[sizeof(long)];
 	} word;
@@ -59,6 +60,10 @@ static void dump_write_buffer(pid_t pid, unsigned long addr, size_t len)
 		for (j = 0; j < sizeof(long) && i + j < len; j++)
 		{
 			c = word.bytes[j];
+			if (c == '\n') /* Skip newline characters in the dumped output */
+			{
+				continue;
+			}
 			if (c >= 32 && c < 127) /* Printable ASCII */
 				putchar(c);
 			else if (c == '\n')
@@ -73,7 +78,6 @@ static void dump_write_buffer(pid_t pid, unsigned long addr, size_t len)
 	}
 }
 
-
 /**
  * parent_process - Traces child and prints syscalls.
  * @child: PID of the child process.
@@ -86,9 +90,8 @@ int parent_process(pid_t child)
 	int is_syscall_entry = 1;
 	unsigned long long current_syscall_nr = 0;
 	const syscall_t *syscall_info = NULL;
-	int seen_execve_exit = 0; /* Start tracing after execve completes */
+	int seen_execve_exit = 0;	 /* Start tracing after execve completes */
 	unsigned long entry_rsi = 0; /* To store rsi from write syscall entry */
-
 
 	waitpid(child, &status, 0); /* Initial SIGSTOP */
 	if (WIFEXITED(status))
@@ -101,8 +104,10 @@ int parent_process(pid_t child)
 	{
 		if (ptrace(PTRACE_SYSCALL, child, 0, 0) == -1)
 		{
-			if (errno == ESRCH) break; /* Child exited */
-			perror("ptrace(PTRACE_SYSCALL)"); return (1);
+			if (errno == ESRCH)
+				break; /* Child exited */
+			perror("ptrace(PTRACE_SYSCALL)");
+			return (1);
 		}
 		waitpid(child, &status, 0);
 
@@ -114,7 +119,8 @@ int parent_process(pid_t child)
 
 		if (ptrace(PTRACE_GETREGS, child, 0, &regs) == -1)
 		{
-			perror("ptrace(PTRACE_GETREGS)"); return (1);
+			perror("ptrace(PTRACE_GETREGS)");
+			return (1);
 		}
 
 		if (is_syscall_entry) /* Syscall Entry */
@@ -127,7 +133,6 @@ int parent_process(pid_t child)
 				entry_rsi = regs.rsi; /* Buffer address */
 			}
 
-
 			/* Ignore syscalls before execve exit */
 			if (!seen_execve_exit && current_syscall_nr != 59) /* SYS_execve */
 			{
@@ -136,8 +141,10 @@ int parent_process(pid_t child)
 
 			if (current_syscall_nr == 60 || current_syscall_nr == 231) /* exit or exit_group */
 			{
-				if (syscall_info) fprintf(stdout, "%s = ?\n", syscall_info->name);
-				else fprintf(stdout, "syscall_%llu = ?\n", current_syscall_nr);
+				if (syscall_info)
+					fprintf(stdout, "%s = ?\n", syscall_info->name);
+				else
+					fprintf(stdout, "syscall_%llu = ?\n", current_syscall_nr);
 				fflush(stdout);
 			}
 			else
@@ -153,8 +160,10 @@ int parent_process(pid_t child)
 				if (current_syscall_nr == 59) /* SYS_execve */
 				{
 					seen_execve_exit = 1; /* Start "normal" tracing */
-					if (syscall_info) fprintf(stdout, "%s = %#llx\n", syscall_info->name, (unsigned long long)regs.rax);
-					else fprintf(stdout, "syscall_%llu = %#llx\n", current_syscall_nr, (unsigned long long)regs.rax);
+					if (syscall_info)
+						fprintf(stdout, "%s = %#llx\n", syscall_info->name, (unsigned long long)regs.rax);
+					else
+						fprintf(stdout, "syscall_%llu = %#llx\n", current_syscall_nr, (unsigned long long)regs.rax);
 					fflush(stdout);
 				}
 				is_syscall_entry = 1; /* Back to expecting entry */
@@ -171,7 +180,8 @@ int parent_process(pid_t child)
 			char name_buffer[64];
 			const char *name_to_print;
 
-			if (syscall_info) name_to_print = syscall_info->name;
+			if (syscall_info)
+				name_to_print = syscall_info->name;
 			else
 			{
 				sprintf(name_buffer, "syscall_%llu", current_syscall_nr);
@@ -229,21 +239,25 @@ int main(int argc, char *argv[], char **envp)
 		devnull_fd = open("/dev/null", O_WRONLY);
 		if (devnull_fd == -1)
 		{
-			perror("open /dev/null"); exit(EXIT_FAILURE);
+			perror("open /dev/null");
+			exit(EXIT_FAILURE);
 		}
 		if (dup2(devnull_fd, STDOUT_FILENO) == -1)
 		{
-			perror("dup2 to /dev/null"); exit(EXIT_FAILURE);
+			perror("dup2 to /dev/null");
+			exit(EXIT_FAILURE);
 		}
 		close(devnull_fd);
 
 		if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1)
 		{
-			perror("ptrace(TRACEME)"); exit(EXIT_FAILURE);
+			perror("ptrace(TRACEME)");
+			exit(EXIT_FAILURE);
 		}
 		if (raise(SIGSTOP) != 0)
 		{
-			perror("raise(SIGSTOP)"); exit(EXIT_FAILURE);
+			perror("raise(SIGSTOP)");
+			exit(EXIT_FAILURE);
 		}
 		execve(argv[1], argv + 1, envp);
 		perror("execve");
