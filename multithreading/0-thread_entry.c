@@ -1,33 +1,27 @@
 #include <stdio.h>
+#include <pthread.h>
 #include "multithreading.h"
-#include <pthread.h> // For pthread_exit
 
 /**
- * thread_entry - Serves as the entry point to a new thread.
- * @arg: A pointer to a string that must be printed, followed by a new line.
+ * thread_entry - Prints a string and terminates the calling thread.
+ * @arg: A void pointer to a null-terminated string.
  *
- * Description: This function takes a void pointer `arg`, which is expected
- * to be the address of a null-terminated string. It casts this
- * argument back to a `char *` and prints the string to standard
- * output, followed by a newline character.
+ * Description: This function casts `arg` to a `char *` and prints the
+ * string it points to, followed by a newline. It then
+ * calls `pthread_exit(NULL)` to terminate the calling thread.
+ * This means if called by `main` directly, `main` will exit.
  *
- * Return: The argument `arg` is returned. If called as a thread entry point,
- * this return value can be retrieved by pthread_join.
+ * Return: Does not return to the caller as `pthread_exit()` is called.
+ * The thread's exit status is `NULL`.
  */
 void *thread_entry(void *arg)
 {
-    char *str_arg;
+	char *str_arg = (char *)arg;
 
-    if (arg == NULL)
-    {
-        /* Handle null argument if necessary, though problem implies valid string */
-        /* For this specific task, problem example passes a string */
-        /* printf("(nil)\n"); */
-        /* return (NULL); */
-    }
+	printf("%s\n", str_arg);
 
-    str_arg = (char *)arg;
-    printf("%s\n", str_arg);
+	pthread_exit(NULL);
 
-    return (arg); /* Or return (NULL); if arg is not meant to be joined/retrieved */
+	/* This line is unreachable due to pthread_exit() */
+	return (NULL);
 }
