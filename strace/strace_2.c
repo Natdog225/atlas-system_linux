@@ -5,11 +5,11 @@
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/user.h>  /* For struct user_regs_struct */
+#include <sys/user.h>
 #include <errno.h>
 #include <signal.h>
-#include <fcntl.h>     /* For O_WRONLY */
-#include "syscalls.h"  /* Your provided syscalls.h */
+#include <fcntl.h>
+#include "syscalls.h"
 
 #define DUMP_MAX 32 /* Max bytes to dump from write buffer */
 
