@@ -43,7 +43,7 @@ list_t *prime_factors(char const *s)
 			return (NULL);
 		}
 		*p_factor_val = 2;
-		if (list_add(factors, p_factor_val) == NULL) /* list_add returns new node or NULL */
+		if (list_add(factors, p_factor_val) == NULL) /* list_add returns new node */
 		{
 			free(p_factor_val);
 			list_destroy(factors, free);
