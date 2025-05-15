@@ -11,10 +11,11 @@
 #include <fcntl.h>
 #include "syscalls.h"
 
-#define DUMP_MAX 32 /* Max bytes to dump from write buffer */
+/* Increased DUMP_MAX to avoid truncating the observed path */
+#define DUMP_MAX 64 /* Max bytes to dump from write buffer */
 
 /**
- * find_syscall_entry - Finds syscall definition.
+ * find_syscall_entry - Finds syscall definition by number.
  * @syscall_num: Syscall number.
  * Return: Pointer to syscall_t entry, or NULL.
  */
@@ -45,7 +46,7 @@ static void dump_write_buffer(pid_t pid, unsigned long addr, size_t len)
 	} word;
 	char c;
 
-	if (len > DUMP_MAX)
+	if (len > DUMP_MAX) /* Cap the amount dumped */
 		len = DUMP_MAX;
 
 	for (i = 0; i < len; i += sizeof(long))
@@ -86,13 +87,15 @@ int parent_process(pid_t child)
 	unsigned long long current_syscall_nr = 0;
 	const syscall_t *syscall_info = NULL;
 	int seen_execve_exit = 0; /* Start tracing after execve completes */
+	unsigned long entry_rsi = 0; /* To store rsi from write syscall entry */
 
-	waitpid(child, &status, 0); /* Wait for initial SIGSTOP */
+
+	waitpid(child, &status, 0); /* Initial SIGSTOP */
 	if (WIFEXITED(status))
 		return (0);
 
 	if (ptrace(PTRACE_SETOPTIONS, child, 0, PTRACE_O_TRACESYSGOOD) == -1)
-		perror("ptrace(PTRACE_SETOPTIONS)"); /* Continue if non-fatal */
+		perror("ptrace(PTRACE_SETOPTIONS)");
 
 	while (1)
 	{
@@ -106,7 +109,6 @@ int parent_process(pid_t child)
 		if (WIFEXITED(status))
 			break;
 
-		/* Check for PTRACE_O_TRACESYSGOOD syscall stop */
 		if (!(WIFSTOPPED(status) && (WSTOPSIG(status) & 0x80)))
 			continue;
 
@@ -120,6 +122,12 @@ int parent_process(pid_t child)
 			current_syscall_nr = regs.orig_rax;
 			syscall_info = find_syscall_entry(current_syscall_nr);
 
+			if (current_syscall_nr == 1) /* SYS_write */
+			{
+				entry_rsi = regs.rsi; /* Buffer address */
+			}
+
+
 			/* Ignore syscalls before execve exit */
 			if (!seen_execve_exit && current_syscall_nr != 59) /* SYS_execve */
 			{
@@ -131,7 +139,6 @@ int parent_process(pid_t child)
 				if (syscall_info) fprintf(stdout, "%s = ?\n", syscall_info->name);
 				else fprintf(stdout, "syscall_%llu = ?\n", current_syscall_nr);
 				fflush(stdout);
-				/* Loop will break on WIFEXITED after this */
 			}
 			else
 			{
@@ -176,7 +183,9 @@ int parent_process(pid_t child)
 			if (current_syscall_nr == 1) /* SYS_write */
 			{
 				if ((long long)regs.rax > 0) /* Successful write */
-					dump_write_buffer(child, regs.rsi, (size_t)regs.rax);
+				{
+					dump_write_buffer(child, entry_rsi, (size_t)regs.rax);
+				}
 				fprintf(stdout, " = %#llx\n", (unsigned long long)regs.rax);
 			}
 			else
@@ -217,7 +226,6 @@ int main(int argc, char *argv[], char **envp)
 
 	if (child == 0) /* Child process */
 	{
-		/* Redirect child's stdout to /dev/null */
 		devnull_fd = open("/dev/null", O_WRONLY);
 		if (devnull_fd == -1)
 		{
@@ -233,17 +241,14 @@ int main(int argc, char *argv[], char **envp)
 		{
 			perror("ptrace(TRACEME)"); exit(EXIT_FAILURE);
 		}
-		/* Stop self for parent to attach and set options */
 		if (raise(SIGSTOP) != 0)
 		{
 			perror("raise(SIGSTOP)"); exit(EXIT_FAILURE);
 		}
-		/* Execute command */
 		execve(argv[1], argv + 1, envp);
-		perror("execve"); /* execve only returns on error */
+		perror("execve");
 		exit(EXIT_FAILURE);
 	}
 
-	/* Parent process logic */
 	return (parent_process(child));
 }
