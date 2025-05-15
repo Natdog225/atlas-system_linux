@@ -768,9 +768,6 @@ static syscall_t const syscalls_32_g[] = {
 	{"tee", 315, SSIZE_T, 4, {INT, INT, SIZE_T, UNSIGNED_INT, -1, -1}},
 	{"vmsplice", 316, SSIZE_T, 4, {INT, STRUCT_IOVEC_P, UNSIGNED_LONG, UNSIGNED_INT, -1, -1}},
 	{"move_pages", 317, LONG, 6, {INT, UNSIGNED_LONG, VOID_PP, INT_P, INT_P, INT}},
-	{ "seccomp", 317, INT, 3, {UNSIGNED_INT, UNSIGNED_INT, VOID_P, VOID_P, VOID_P, VOID_P} },
-    { "getrandom", 318, SSIZE_T, 3, {VOID_P, SIZE_T, UNSIGNED_INT, VOID_P, VOID_P, VOID_P} },
-    { "preadv2", 334, SSIZE_T, 5, {UNSIGNED_LONG, STRUCT_IOVEC_P, INT, UNSIGNED_LONG, INT, VOID_P} },
 	{"getcpu", 318, INT, 3, {UNSIGNED_INT_P, UNSIGNED_INT_P, STRUCT_GETCPU_CACHE_P, -1, -1, -1}},
 	{"epoll_pwait", 319, INT, 5, {INT, STRUCT_EPOLL_EVENT_P, INT, INT, SIGSET_T_P, -1}},
 	{"utimensat", 320, INT, 4, {INT, CHAR_P, STRUCT_TIMESPEC_P, INT, -1, -1}},
@@ -810,3 +807,6 @@ static syscall_t const syscalls_32_g[] = {
 	{"seccomp", 354, -1, 0, {-1, -1, -1, -1, -1, -1}}};
 
 #endif /* !_SYSCALLS_H_ */
+
+/* number of syscalls in table */
+#define SYSCALL_MAX (sizeof(syscalls_64_g) / sizeof(syscall_t))
