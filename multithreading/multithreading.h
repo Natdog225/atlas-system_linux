@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <pthread.h> // For pthread_mutex_t, pthread_t
+#include "list.h"
 
 /*-------------------- STRUCTURES --------------------*/
 
@@ -72,6 +73,11 @@ typedef struct blur_portion_s
 void *thread_entry(void *arg);
 
 int tprintf(char const *format, ...);
+
+list_t *prime_factors(char const *s);
+list_t *list_init(list_t *list);
+node_t *list_add(list_t *list, void *content); /* Returns the new node or NULL */
+void list_destroy(list_t *list, node_func_t free_func);
 
 struct list_s;
 struct node_s;
