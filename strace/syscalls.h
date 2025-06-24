@@ -807,3 +807,6 @@ static syscall_t const syscalls_32_g[] = {
 	{"seccomp", 354, -1, 0, {-1, -1, -1, -1, -1, -1}}};
 
 #endif /* !_SYSCALLS_H_ */
+
+/* number of syscalls in table */
+#define SYSCALL_MAX (sizeof(syscalls_64_g) / sizeof(syscall_t))
