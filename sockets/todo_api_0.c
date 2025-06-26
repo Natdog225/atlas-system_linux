@@ -46,6 +46,7 @@ int main(void)
 		return (EXIT_FAILURE);
 	}
 	printf("Server listening on port %d\n", PORT);
+	fflush(stdout);
 
 	while (1)
 	{
@@ -64,8 +65,10 @@ int main(void)
 			continue;
 		}
 		printf("Raw request: \"%s\"\n", buffer);
+		fflush(stdout);
 		sscanf(buffer, "%s %s %s", method, path, version);
 		printf("Method: %s\nPath: %s\nVersion: %s\n", method, path, version);
+		fflush(stdout);
 		send(client_fd, response, strlen(response), 0);
 		close(client_fd);
 	}
