@@ -10,9 +10,9 @@
 #define BUFFER_SIZE 8192
 
 /**
- * main - Listens on port 8080, accepts connections, and parses HTTP requests.
+ * main - Listens on port 8080, accepts connections, and parses HTTP requests for fun.
  *
- * Return: EXIT_FAILURE if an error occurs, otherwise runs forever.
+ * Return: EXIT_FAILURE if an error occurs, otherwise runs forever like life.
  */
 int main(void)
 {
@@ -69,6 +69,6 @@ int main(void)
 		send(client_fd, response, strlen(response), 0);
 		close(client_fd);
 	}
-	close(server_fd); /* Unreachable */
+	close(server_fd); /* Unreachable cause who would want to */
 	return (EXIT_SUCCESS);
 }
